@@ -90,3 +90,26 @@ async def test_options_flow_sets_scan_interval(hass: HomeAssistant):
     )
     assert result2["type"] == data_entry_flow.FlowResultType.CREATE_ENTRY
     assert entry.options[CONF_SCAN_INTERVAL] == 60
+
+
+async def test_reauth_flow_updates_password(hass: HomeAssistant):
+    from pytest_homeassistant_custom_component.common import MockConfigEntry
+
+    entry = MockConfigEntry(domain=DOMAIN, data=USER_INPUT, unique_id="1.2.3.4:9999")
+    entry.add_to_hass(hass)
+
+    result = await entry.start_reauth_flow(hass)
+    assert result["type"] == data_entry_flow.FlowResultType.FORM
+    assert result["step_id"] == "reauth_confirm"
+
+    with patch(
+        "custom_components.xbox360_aurora.config_flow.NovaClient.authenticate",
+        new=AsyncMock(return_value="tok"),
+    ):
+        result2 = await hass.config_entries.flow.async_configure(
+            result["flow_id"],
+            {CONF_USERNAME: "xboxhttp", CONF_PASSWORD: "newpass"},
+        )
+    assert result2["type"] == data_entry_flow.FlowResultType.ABORT
+    assert result2["reason"] == "reauth_successful"
+    assert entry.data[CONF_PASSWORD] == "newpass"

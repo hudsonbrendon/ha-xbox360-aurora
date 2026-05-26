@@ -13,6 +13,11 @@
           "ftp_username": "Usuario de FTP",
           "ftp_password": "Contraseña de FTP"
         }
+      },
+      "reauth_confirm": {
+        "title": "Volver a autenticar Xbox 360 Aurora",
+        "description": "Las credenciales de NOVA ya no son válidas. Introdúcelas de nuevo.",
+        "data": { "username": "Usuario de NOVA", "password": "Contraseña de NOVA" }
       }
     },
     "error": {
@@ -20,7 +25,8 @@
       "cannot_connect": "No se pudo conectar. Comprueba la IP, el puerto y que Aurora/NOVA esté en ejecución."
     },
     "abort": {
-      "already_configured": "Esta Xbox 360 ya está configurada."
+      "already_configured": "Esta Xbox 360 ya está configurada.",
+      "reauth_successful": "Reautenticación correcta."
     }
   },
   "options": {

@@ -13,6 +13,11 @@
           "ftp_username": "FTP username",
           "ftp_password": "FTP password"
         }
+      },
+      "reauth_confirm": {
+        "title": "Re-authenticate Xbox 360 Aurora",
+        "description": "The NOVA credentials are no longer valid. Enter them again.",
+        "data": { "username": "NOVA username", "password": "NOVA password" }
       }
     },
     "error": {
@@ -20,7 +25,8 @@
       "cannot_connect": "Failed to connect. Check the IP, port, and that Aurora/NOVA is running."
     },
     "abort": {
-      "already_configured": "This Xbox 360 is already configured."
+      "already_configured": "This Xbox 360 is already configured.",
+      "reauth_successful": "Re-authentication successful."
     }
   },
   "options": {
