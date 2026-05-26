@@ -56,7 +56,11 @@
     },
     "button": {
       "reboot": { "name": "Reiniciar" },
-      "shutdown": { "name": "Desligar" }
+      "shutdown": { "name": "Desligar" },
+      "restart_aurora": { "name": "Reiniciar o Aurora" }
+    },
+    "switch": {
+      "game_paused": { "name": "Jogo pausado" }
     }
   },
   "services": {
