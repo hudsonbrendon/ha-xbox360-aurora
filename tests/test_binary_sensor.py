@@ -44,6 +44,18 @@ async def test_connectivity_on_when_polling_succeeds(hass: HomeAssistant):
     ), patch(
         "custom_components.xbox360_aurora.coordinator.NovaClient.get_memory",
         new=AsyncMock(return_value={"free": 1, "used": 1, "total": 1}),
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_system",
+        new=AsyncMock(return_value={}),
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_smc",
+        new=AsyncMock(return_value={}),
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_profile",
+        new=AsyncMock(return_value=[]),
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_systemlink_bandwidth",
+        new=AsyncMock(return_value={}),
     ):
         assert await hass.config_entries.async_setup(entry.entry_id)
         await hass.async_block_till_done()
@@ -73,6 +85,15 @@ async def test_connectivity_off_when_polling_fails(hass: HomeAssistant):
     ), patch(
         "custom_components.xbox360_aurora.coordinator.NovaClient.get_memory",
         new=AsyncMock(side_effect=NovaConnectionError("offline")),
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_smc",
+        new=AsyncMock(side_effect=NovaConnectionError("offline")),
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_profile",
+        new=AsyncMock(side_effect=NovaConnectionError("offline")),
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_systemlink_bandwidth",
+        new=AsyncMock(side_effect=NovaConnectionError("offline")),
     ):
         # First refresh fails -> entry setup raises ConfigEntryNotReady.
         # We still want the binary sensor available and "off", so we force a
@@ -86,6 +107,18 @@ async def test_connectivity_off_when_polling_fails(hass: HomeAssistant):
         ), patch(
             "custom_components.xbox360_aurora.coordinator.NovaClient.get_memory",
             new=AsyncMock(return_value={"free": 1, "used": 1, "total": 1}),
+        ), patch(
+            "custom_components.xbox360_aurora.coordinator.NovaClient.get_system",
+            new=AsyncMock(return_value={}),
+        ), patch(
+            "custom_components.xbox360_aurora.coordinator.NovaClient.get_smc",
+            new=AsyncMock(return_value={}),
+        ), patch(
+            "custom_components.xbox360_aurora.coordinator.NovaClient.get_profile",
+            new=AsyncMock(return_value=[]),
+        ), patch(
+            "custom_components.xbox360_aurora.coordinator.NovaClient.get_systemlink_bandwidth",
+            new=AsyncMock(return_value={}),
         ):
             assert await hass.config_entries.async_setup(entry.entry_id)
             await hass.async_block_till_done()

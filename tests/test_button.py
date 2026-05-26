@@ -43,6 +43,18 @@ async def _setup(hass: HomeAssistant) -> MockConfigEntry:
     ), patch(
         "custom_components.xbox360_aurora.coordinator.NovaClient.get_memory",
         new=AsyncMock(return_value={"free": 1, "used": 1, "total": 1}),
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_system",
+        new=AsyncMock(return_value={}),
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_smc",
+        new=AsyncMock(return_value={}),
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_profile",
+        new=AsyncMock(return_value=[]),
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_systemlink_bandwidth",
+        new=AsyncMock(return_value={}),
     ):
         assert await hass.config_entries.async_setup(entry.entry_id)
         await hass.async_block_till_done()

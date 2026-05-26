@@ -45,6 +45,18 @@ async def test_sensors_expose_nova_values(hass: HomeAssistant):
     ), patch(
         "custom_components.xbox360_aurora.coordinator.NovaClient.get_memory",
         new=AsyncMock(return_value={"free": 104857600, "used": 200, "total": 300}),
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_system",
+        new=AsyncMock(return_value={}),
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_smc",
+        new=AsyncMock(return_value={}),
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_profile",
+        new=AsyncMock(return_value=[]),
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_systemlink_bandwidth",
+        new=AsyncMock(return_value={}),
     ):
         assert await hass.config_entries.async_setup(entry.entry_id)
         await hass.async_block_till_done()
@@ -77,6 +89,18 @@ async def test_current_title_resolves_game_name(hass: HomeAssistant):
     ), patch(
         "custom_components.xbox360_aurora.coordinator.NovaClient.get_memory",
         new=AsyncMock(return_value={"free": 104857600, "used": 200, "total": 300}),
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_system",
+        new=AsyncMock(return_value={}),
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_smc",
+        new=AsyncMock(return_value={}),
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_profile",
+        new=AsyncMock(return_value=[]),
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_systemlink_bandwidth",
+        new=AsyncMock(return_value={}),
     ):
         assert await hass.config_entries.async_setup(entry.entry_id)
         await hass.async_block_till_done()
