@@ -123,6 +123,12 @@ class NovaClient:
         """Get LiNK network bandwidth usage."""
         return await self._request("GET", "/systemlink/bandwidth")
 
+    async def set_thread_state(self, suspend: bool) -> None:
+        """Suspend (pause) or resume the running title's main thread."""
+        data = aiohttp.FormData()
+        data.add_field("suspend", "1" if suspend else "0")
+        await self._request("POST", "/thread/state", data=data)
+
     async def launch_title(self, executable: str, path: str, title_type: int) -> None:
         """Launch an executable on the console.
 

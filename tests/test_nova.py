@@ -139,3 +139,17 @@ async def test_get_smc_profile_bandwidth():
         assert smc["traystate"] == 4
         assert profile[0]["gamertag"] == "Hudson"
         assert bw["rate"]["downstream"] == 10.0
+
+
+async def test_set_thread_state_posts_suspend():
+    async with _make_session() as session:
+        client = NovaClient(session, "1.2.3.4", 9999, "u", "p")
+        with aioresponses() as mock:
+            mock.post(f"{BASE}/authenticate", payload={"token": "t1"})
+            mock.post(f"{BASE}/thread/state", status=202)
+            await client.set_thread_state(True)
+        called = any(
+            method == "POST" and str(url).endswith("/thread/state")
+            for (method, url) in mock.requests
+        )
+        assert called
