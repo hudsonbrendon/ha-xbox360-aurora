@@ -17,4 +17,20 @@ def test_default_ports():
 
 
 def test_platforms_registered():
-    assert len(PLATFORMS) == 3
+    assert len(PLATFORMS) == 4
+
+
+def test_switch_platform_and_new_consts():
+    from homeassistant.const import Platform
+    from custom_components.xbox360_aurora.const import (
+        PLATFORMS,
+        CONF_SCAN_INTERVAL,
+        FTP_CMD_RESTART,
+        MIN_SCAN_INTERVAL,
+        MAX_SCAN_INTERVAL,
+    )
+
+    assert Platform.SWITCH in PLATFORMS
+    assert CONF_SCAN_INTERVAL == "scan_interval"
+    assert FTP_CMD_RESTART == "RESTART"
+    assert MIN_SCAN_INTERVAL < MAX_SCAN_INTERVAL

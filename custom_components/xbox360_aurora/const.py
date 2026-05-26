@@ -20,7 +20,16 @@ DEFAULT_FTP_PASSWORD = "xboxftp"
 
 DEFAULT_SCAN_INTERVAL = 30
 
-PLATFORMS = [Platform.BINARY_SENSOR, Platform.BUTTON, Platform.SENSOR]
+PLATFORMS = [
+    Platform.BINARY_SENSOR,
+    Platform.BUTTON,
+    Platform.SENSOR,
+    Platform.SWITCH,
+]
+
+CONF_SCAN_INTERVAL = "scan_interval"
+MIN_SCAN_INTERVAL = 10
+MAX_SCAN_INTERVAL = 600
 
 # launch_title service
 SERVICE_LAUNCH_TITLE = "launch_title"
@@ -31,3 +40,4 @@ ATTR_TYPE = "type"
 # FTP SITE commands
 FTP_CMD_REBOOT = "REBOOT"
 FTP_CMD_SHUTDOWN = "SHUTDOWN"
+FTP_CMD_RESTART = "RESTART"
