@@ -52,3 +52,55 @@ async def test_authenticate_connection_failure_raises_connection_error():
             )
             with pytest.raises(NovaConnectionError):
                 await client.authenticate()
+
+
+async def test_get_title_sends_bearer_and_returns_json():
+    async with _make_session() as session:
+        client = NovaClient(session, "1.2.3.4", 9999, "u", "p")
+        with aioresponses() as mock:
+            mock.post(f"{BASE}/authenticate", payload={"token": "t1"})
+            mock.get(f"{BASE}/title", payload={"titleid": "DEADBEEF"})
+            result = await client.get_title()
+        assert result == {"titleid": "DEADBEEF"}
+
+
+async def test_request_reauths_once_on_401():
+    async with _make_session() as session:
+        client = NovaClient(session, "1.2.3.4", 9999, "u", "p")
+        with aioresponses() as mock:
+            # initial auth, then a stale-token 401, then re-auth, then success
+            mock.post(f"{BASE}/authenticate", payload={"token": "t1"})
+            mock.get(f"{BASE}/title", status=401)
+            mock.post(f"{BASE}/authenticate", payload={"token": "t2"})
+            mock.get(f"{BASE}/title", payload={"titleid": "CAFE"})
+            result = await client.get_title()
+        assert result == {"titleid": "CAFE"}
+        assert client.token == "t2"
+
+
+async def test_request_raises_auth_error_when_401_persists():
+    async with _make_session() as session:
+        client = NovaClient(session, "1.2.3.4", 9999, "u", "p")
+        with aioresponses() as mock:
+            mock.post(f"{BASE}/authenticate", payload={"token": "t1"})
+            mock.get(f"{BASE}/title", status=401)
+            mock.post(f"{BASE}/authenticate", payload={"token": "t2"})
+            mock.get(f"{BASE}/title", status=401)
+            with pytest.raises(NovaAuthError):
+                await client.get_title()
+
+
+async def test_get_temperature_and_memory():
+    async with _make_session() as session:
+        client = NovaClient(session, "1.2.3.4", 9999, "u", "p")
+        with aioresponses() as mock:
+            mock.post(f"{BASE}/authenticate", payload={"token": "t1"})
+            mock.get(
+                f"{BASE}/temperature",
+                payload={"cpu": 50, "gpu": 55, "case": 40, "memory": 45, "celsius": True},
+            )
+            temp = await client.get_temperature()
+            mock.get(f"{BASE}/memory", payload={"free": 100, "used": 200, "total": 300})
+            mem = await client.get_memory()
+        assert temp["cpu"] == 50
+        assert mem["total"] == 300
