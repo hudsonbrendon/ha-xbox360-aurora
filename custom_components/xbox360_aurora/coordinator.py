@@ -49,6 +49,8 @@ class XboxAuroraCoordinator(DataUpdateCoordinator[dict]):
             smc = await self.client.get_smc()
             profile = await self.client.get_profile()
             bandwidth = await self.client.get_systemlink_bandwidth()
+            achievement = await self.client.get_achievement()
+            achievement_player = await self.client.get_achievement_player()
         except NovaAuthError as err:
             raise ConfigEntryAuthFailed("NOVA authentication failed") from err
         except NovaError as err:
@@ -61,4 +63,6 @@ class XboxAuroraCoordinator(DataUpdateCoordinator[dict]):
             "profile": profile or [],
             "bandwidth": bandwidth or {},
             "system": self.system,
+            "achievement": achievement or [],
+            "achievement_player": achievement_player or [],
         }
