@@ -71,6 +71,8 @@ reboot, shutdown, and restart-Aurora.
 **On Home Assistant:**
 
 - Home Assistant **2024.12** or newer, with network access to the console.
+  (The integration's icon/logo in the UI requires Home Assistant **2026.3** or newer,
+  which serves custom-integration brand images from the bundled `brand/` folder.)
 
 ## Installation
 
