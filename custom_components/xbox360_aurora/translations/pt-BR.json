@@ -42,7 +42,10 @@
       "console_type": { "name": "Tipo de console" },
       "dashboard_version": { "name": "Versão do dashboard" },
       "serial_number": { "name": "Número de série" },
-      "console_id": { "name": "ID do console" }
+      "console_id": { "name": "ID do console" },
+      "gamertag": { "name": "Gamertag" },
+      "gamerscore": { "name": "Gamerscore" },
+      "signed_in_profiles": { "name": "Perfis conectados" }
     },
     "binary_sensor": {
       "online": { "name": "Online" }

@@ -210,3 +210,38 @@ async def test_system_sensors(hass: HomeAssistant):
     assert hass.states.get("sensor.xbox_360_1_2_3_4_console_type").state == "Retail"
     assert hass.states.get("sensor.xbox_360_1_2_3_4_dashboard_version").state == "2.0.17559.0"
     assert hass.states.get("sensor.xbox_360_1_2_3_4_serial_number").state == "123456789012"
+
+
+async def test_profile_sensors(hass: HomeAssistant):
+    entry = MockConfigEntry(
+        domain=DOMAIN, data=ENTRY_DATA, unique_id="1.2.3.4:9999", title="Xbox 360 (1.2.3.4)"
+    )
+    entry.add_to_hass(hass)
+    profiles = [
+        {"gamertag": "Hudson", "gamerscore": 1234, "signedin": 1, "index": 0},
+        {"gamertag": "Player2", "gamerscore": 50, "signedin": 1, "index": 1},
+        {"gamertag": "", "gamerscore": 0, "signedin": 0, "index": 2},
+    ]
+    with patch(
+        "custom_components.xbox360_aurora.NovaClient.authenticate", new=AsyncMock(return_value="tok")
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_title", new=AsyncMock(return_value={})
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_temperature", new=AsyncMock(return_value={})
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_memory", new=AsyncMock(return_value={})
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_system", new=AsyncMock(return_value={})
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_smc", new=AsyncMock(return_value={})
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_profile", new=AsyncMock(return_value=profiles)
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_systemlink_bandwidth", new=AsyncMock(return_value={})
+    ):
+        assert await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+
+    assert hass.states.get("sensor.xbox_360_1_2_3_4_gamertag").state == "Hudson"
+    assert hass.states.get("sensor.xbox_360_1_2_3_4_gamerscore").state == "1234"
+    assert hass.states.get("sensor.xbox_360_1_2_3_4_signed_in_profiles").state == "2"

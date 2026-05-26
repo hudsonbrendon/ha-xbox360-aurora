@@ -36,6 +36,27 @@ def _enum(mapping: dict[int, str], data: dict, section: str, field: str) -> Stat
     return mapping.get(raw) if raw is not None else None
 
 
+def _primary_profile(data: dict) -> dict:
+    """Return the lowest-index signed-in profile, or {}."""
+    profiles = [p for p in (data.get("profile") or []) if p.get("signedin")]
+    if not profiles:
+        return {}
+    return min(profiles, key=lambda p: p.get("index", 99))
+
+
+def _gamertag(data: dict) -> StateType:
+    return _primary_profile(data).get("gamertag") or None
+
+
+def _gamerscore(data: dict) -> StateType:
+    profile = _primary_profile(data)
+    return profile.get("gamerscore") if profile else None
+
+
+def _signed_in_count(data: dict) -> StateType:
+    return sum(1 for p in (data.get("profile") or []) if p.get("signedin"))
+
+
 def _dashboard_version(data: dict) -> StateType:
     version = (data.get("system") or {}).get("version") or {}
     if not version:
@@ -233,6 +254,26 @@ SENSORS: tuple[XboxSensorDescription, ...] = (
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_registry_enabled_default=False,
         value_fn=lambda data: (data.get("system") or {}).get("consoleid"),
+    ),
+    XboxSensorDescription(
+        key="gamertag",
+        translation_key="gamertag",
+        icon="mdi:account",
+        value_fn=_gamertag,
+    ),
+    XboxSensorDescription(
+        key="gamerscore",
+        translation_key="gamerscore",
+        icon="mdi:trophy",
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=_gamerscore,
+    ),
+    XboxSensorDescription(
+        key="signed_in_profiles",
+        translation_key="signed_in_profiles",
+        icon="mdi:account-multiple",
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=_signed_in_count,
     ),
 )
 
