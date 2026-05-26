@@ -15,11 +15,12 @@
 
 Monitor and control a jailbroken (**RGH/JTAG**) Xbox 360 running the
 [**Aurora**](https://consolemods.org/wiki/Xbox_360:Aurora) dashboard with the
-**NOVA** plugin — the running title, temperatures, free RAM, online status, plus
-launch-a-game, reboot, and shutdown.
+**NOVA** plugin — the running title, temperatures, RAM, online status, profile,
+network bandwidth, hardware diagnostics, plus launch-a-game, pause/resume,
+reboot, shutdown, and restart-Aurora.
 
 > Talks to the NOVA REST API (port `9999`, JWT auth) for monitoring and launching,
-> and to Aurora's FTP server (port `21`, `SITE` commands) for reboot/shutdown.
+> and to Aurora's FTP server (port `21`, `SITE` commands) for reboot/shutdown/restart.
 > Not affiliated with Microsoft or the Aurora/NOVA developers.
 
 ## Features
@@ -27,12 +28,21 @@ launch-a-game, reboot, and shutdown.
 - 🎮 **Now playing** — the running game's name (resolved from a bundled Title ID
   database of 1700+ titles); the raw `title_id` is kept as an attribute. Unknown
   titles fall back to the hex ID.
-- 🌡️ **Temperatures** — CPU, GPU, and case sensors (°C).
-- 🧠 **Free RAM** — available memory in MB.
+- 🌡️ **Temperatures** — CPU, GPU, case, and memory sensors (°C).
+- 🧠 **RAM** — free, used, total (MB), and usage (%).
 - 📡 **Online status** — a connectivity binary sensor that flips off when the console
   is unreachable.
+- 🕹️ **SMC** — disc tray state, video output (HDMI/Component/VGA/Composite),
+  console orientation, and SMC firmware version.
+- 🖥️ **System diagnostics** — motherboard revision, console type (Retail/Devkit),
+  dashboard version, serial number, and console ID.
+- 👤 **Profile** — signed-in gamertag, gamerscore, and count of signed-in profiles.
+- 🌐 **Network (LiNK)** — real-time download/upload rate and cumulative totals.
+- ⏸️ **Game paused switch** — suspend or resume the running title's main thread via
+  NOVA `/thread/state` (optimistic).
 - 🚀 **Launch titles** — a `launch_title` service to start any executable remotely.
-- 🔁 **Reboot / Shutdown** — buttons that issue Aurora FTP `SITE` commands.
+- 🔁 **Reboot / Shutdown / Restart Aurora** — buttons that issue Aurora FTP `SITE`
+  commands.
 - 🏠 **Local polling** — everything runs on your LAN; no cloud, no account.
 
 > ⚡ **Power-ON is not supported.** RGH/JTAG Xbox 360 consoles do not respond to
@@ -88,6 +98,22 @@ launch-a-game, reboot, and shutdown.
 3. The credentials are validated against NOVA on submit. On success the device and
    all entities are created immediately.
 
+## Options
+
+After setup, open the integration's **Configure** menu to adjust:
+
+| Option | Default | Range | Notes |
+|---|---|---|---|
+| Polling interval | `30` s | 10 – 600 s | How often NOVA is polled for sensor data |
+
+Changes take effect immediately (the integration reloads automatically).
+
+## Diagnostics
+
+Go to **Settings → Devices & Services → Xbox 360 Aurora → Download Diagnostics** to
+export a redacted snapshot useful for bug reports. The following fields are always
+redacted: NOVA password, FTP password, `cpukey`, `dvdkey`, `serial`, `consoleid`.
+
 ## Entities
 
 The integration creates a single device, **Xbox 360 (`<host>`)**, with:
@@ -98,13 +124,39 @@ The integration creates a single device, **Xbox 360 (`<host>`)**, with:
 | `sensor.xbox_360_<host>_cpu_temperature` | sensor | CPU temperature (°C) |
 | `sensor.xbox_360_<host>_gpu_temperature` | sensor | GPU temperature (°C) |
 | `sensor.xbox_360_<host>_case_temperature` | sensor | Case temperature (°C) |
+| `sensor.xbox_360_<host>_memory_temperature` | sensor | Memory temperature (°C) |
 | `sensor.xbox_360_<host>_free_ram` | sensor | Free RAM (MB) |
+| `sensor.xbox_360_<host>_used_ram` | sensor | Used RAM (MB) |
+| `sensor.xbox_360_<host>_total_ram` | sensor | Total RAM (MB; diagnostic) |
+| `sensor.xbox_360_<host>_ram_usage` | sensor | RAM usage (%) |
+| `sensor.xbox_360_<host>_disc_tray` | sensor | Disc tray state (idle/closing/open/opening/closed/error) |
+| `sensor.xbox_360_<host>_video_output` | sensor | Video output (HDMI/Component/VGA/Composite; diagnostic) |
+| `sensor.xbox_360_<host>_orientation` | sensor | Console orientation (vertical/horizontal; diagnostic) |
+| `sensor.xbox_360_<host>_smc_version` | sensor | SMC firmware version (diagnostic) |
+| `sensor.xbox_360_<host>_motherboard` | sensor | Motherboard revision, e.g. `Jasper` (diagnostic) |
+| `sensor.xbox_360_<host>_console_type` | sensor | Console type: `Retail` or `Devkit` (diagnostic) |
+| `sensor.xbox_360_<host>_dashboard_version` | sensor | Aurora dashboard version, e.g. `2.0.17559.0` (diagnostic) |
+| `sensor.xbox_360_<host>_serial_number` | sensor | Console serial number (diagnostic; disabled by default) |
+| `sensor.xbox_360_<host>_console_id` | sensor | Console ID (diagnostic; disabled by default) |
+| `sensor.xbox_360_<host>_gamertag` | sensor | Signed-in gamertag (primary profile) |
+| `sensor.xbox_360_<host>_gamerscore` | sensor | Gamerscore (primary profile) |
+| `sensor.xbox_360_<host>_signed_in_profiles` | sensor | Number of signed-in profiles |
+| `sensor.xbox_360_<host>_network_download` | sensor | LiNK download rate (B/s) |
+| `sensor.xbox_360_<host>_network_upload` | sensor | LiNK upload rate (B/s) |
+| `sensor.xbox_360_<host>_network_total_download` | sensor | LiNK total bytes downloaded (diagnostic) |
+| `sensor.xbox_360_<host>_network_total_upload` | sensor | LiNK total bytes uploaded (diagnostic) |
 | `binary_sensor.xbox_360_<host>_online` | binary_sensor | `on` while NOVA responds (connectivity) |
+| `switch.xbox_360_<host>_game_paused` | switch | Pause/resume the running game (optimistic; NOVA `/thread/state`) |
 | `button.xbox_360_<host>_reboot` | button | Power-cycle the console (FTP `SITE REBOOT`) |
 | `button.xbox_360_<host>_shutdown` | button | Power off the console (FTP `SITE SHUTDOWN`) |
+| `button.xbox_360_<host>_restart_aurora` | button | Restart the Aurora dashboard (FTP `SITE RESTART`) |
 
 When the console is off or unreachable, the sensors become `unavailable` and the
 `online` binary sensor reports `off`.
+
+> **Note on secrets:** `cpukey` and `dvdkey` are cryptographic secrets and are
+> **never** exposed as entities. They are also redacted (`**REDACTED**`) in the
+> Home Assistant diagnostics download.
 
 ## Service: `xbox360_aurora.launch_title`
 
