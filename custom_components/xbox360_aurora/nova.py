@@ -111,6 +111,18 @@ class NovaClient:
         """Get general console information."""
         return await self._request("GET", "/system")
 
+    async def get_smc(self) -> dict | None:
+        """Get System Management Controller info (tray, AV pack, orientation)."""
+        return await self._request("GET", "/smc")
+
+    async def get_profile(self) -> list | None:
+        """Get the list of signed-in profiles."""
+        return await self._request("GET", "/profile")
+
+    async def get_systemlink_bandwidth(self) -> dict | None:
+        """Get LiNK network bandwidth usage."""
+        return await self._request("GET", "/systemlink/bandwidth")
+
     async def launch_title(self, executable: str, path: str, title_type: int) -> None:
         """Launch an executable on the console.
 

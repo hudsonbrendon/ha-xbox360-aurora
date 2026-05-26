@@ -120,3 +120,22 @@ async def test_launch_title_posts_multipart_fields():
             for (method, url) in mock.requests
         )
         assert called
+
+
+async def test_get_smc_profile_bandwidth():
+    async with _make_session() as session:
+        client = NovaClient(session, "1.2.3.4", 9999, "u", "p")
+        with aioresponses() as mock:
+            mock.post(f"{BASE}/authenticate", payload={"token": "t1"})
+            mock.get(f"{BASE}/smc", payload={"avpack": 1, "traystate": 4})
+            smc = await client.get_smc()
+            mock.get(f"{BASE}/profile", payload=[{"gamertag": "Hudson", "signedin": 1}])
+            profile = await client.get_profile()
+            mock.get(
+                f"{BASE}/systemlink/bandwidth",
+                payload={"rate": {"downstream": 10.0, "upstream": 2.0}},
+            )
+            bw = await client.get_systemlink_bandwidth()
+        assert smc["traystate"] == 4
+        assert profile[0]["gamertag"] == "Hudson"
+        assert bw["rate"]["downstream"] == 10.0
