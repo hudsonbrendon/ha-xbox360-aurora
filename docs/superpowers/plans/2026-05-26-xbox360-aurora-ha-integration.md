@@ -1953,4 +1953,42 @@ git commit -m "docs: add README"
 - `current_title` shows the raw hex title ID (no friendly-name lookup); a title-ID→name database is a future enhancement.
 - `launch_title` applies to all configured consoles (typically one); per-device targeting is a future enhancement.
 - Expected entity_ids in tests assume HA's default slugify of device name + IP; confirm against `hass.states.async_entity_ids()` if your HA version differs.
+
+---
+
+## Execution Notes (corrections applied during implementation — 2026-05-26)
+
+The plan was executed end-to-end (all 13 commits, full suite green: 23 passed). Three corrections to the code above were required against the installed Home Assistant (2025.1.4) and the test harness. Apply these when re-running:
+
+1. **`DeviceInfo` import path.** In `entity.py` and `button.py`, use:
+   ```python
+   from homeassistant.helpers.device_registry import DeviceInfo
+   ```
+   (The plan's `homeassistant.helpers.device_info` path does not exist in this HA version; `device_registry` re-exports `DeviceInfo`.)
+
+2. **Test `MockConfigEntry` must set `title`.** In `tests/test_init.py`, `tests/test_sensor.py`, `tests/test_binary_sensor.py`, and `tests/test_button.py`, construct the entry with the title so device-name slugs match the asserted entity_ids:
+   ```python
+   entry = MockConfigEntry(domain=DOMAIN, data=ENTRY_DATA, unique_id="1.2.3.4:9999", title="Xbox 360 (1.2.3.4)")
+   ```
+   Without `title`, `MockConfigEntry` defaults to "Mock Title" and entity_ids become `sensor.mock_title_*`.
+
+3. **DNS-resolver teardown fix in `tests/conftest.py`.** HA's `async_get_clientsession` builds its connector with `aiohttp`'s c-ares `AsyncResolver`, which spawns a `_run_safe_shutdown_loop` daemon thread that `pytest-homeassistant-custom-component`'s `verify_cleanup` fixture rejects (reported as a teardown ERROR). Add an autouse fixture that swaps it for the pure-Python `ThreadedResolver` for the test session:
+   ```python
+   import aiohttp.resolver
+   import homeassistant.helpers.aiohttp_client as _ha_aiohttp_client
+
+   @pytest.fixture(autouse=True)
+   def _use_threaded_resolver():
+       original = _ha_aiohttp_client.AsyncResolver
+       _ha_aiohttp_client.AsyncResolver = aiohttp.resolver.ThreadedResolver
+       try:
+           yield
+       finally:
+           _ha_aiohttp_client.AsyncResolver = original
+   ```
+   (Patch the name bound in `homeassistant.helpers.aiohttp_client` — patching `aiohttp.resolver.DefaultResolver` alone does NOT work, because HA imports `AsyncResolver` directly.) With this, the standalone `_make_session()` helper in `test_nova.py` is still fine to keep.
+
+4. **`test_config_flow.py::test_user_flow_success`** must also patch `custom_components.xbox360_aurora.async_setup_entry` (`new=AsyncMock(return_value=True)`) once `__init__.py` has a real setup, so creating the entry doesn't trigger real setup during the flow test.
+
+**Environment note:** create the venv with Python 3.12 (`python3.12 -m venv .venv`); Python 3.14 lacks `ensurepip` here and HA isn't installed under it. Run tests with `.venv/bin/pytest` (shebang targets 3.12); avoid `.venv/bin/python` directly.
 ````
