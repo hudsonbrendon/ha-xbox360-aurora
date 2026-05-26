@@ -36,6 +36,15 @@ def _enum(mapping: dict[int, str], data: dict, section: str, field: str) -> Stat
     return mapping.get(raw) if raw is not None else None
 
 
+def _dashboard_version(data: dict) -> StateType:
+    version = (data.get("system") or {}).get("version") or {}
+    if not version:
+        return None
+    return ".".join(
+        str(version.get(part, 0)) for part in ("major", "minor", "build", "qfe")
+    )
+
+
 @dataclass(frozen=True, kw_only=True)
 class XboxSensorDescription(SensorEntityDescription):
     """Sensor description with a value extractor and optional attributes."""
@@ -188,6 +197,42 @@ SENSORS: tuple[XboxSensorDescription, ...] = (
         icon="mdi:chip",
         entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=lambda data: (data.get("smc") or {}).get("smcversion"),
+    ),
+    XboxSensorDescription(
+        key="motherboard",
+        translation_key="motherboard",
+        icon="mdi:expansion-card",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda data: (data.get("system") or {}).get("console", {}).get("motherboard"),
+    ),
+    XboxSensorDescription(
+        key="console_type",
+        translation_key="console_type",
+        icon="mdi:identifier",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda data: (data.get("system") or {}).get("console", {}).get("type"),
+    ),
+    XboxSensorDescription(
+        key="dashboard_version",
+        translation_key="dashboard_version",
+        icon="mdi:numeric",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=_dashboard_version,
+    ),
+    XboxSensorDescription(
+        key="serial_number",
+        translation_key="serial_number",
+        icon="mdi:barcode",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda data: (data.get("system") or {}).get("serial"),
+    ),
+    XboxSensorDescription(
+        key="console_id",
+        translation_key="console_id",
+        icon="mdi:barcode",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_registry_enabled_default=False,
+        value_fn=lambda data: (data.get("system") or {}).get("consoleid"),
     ),
 )
 

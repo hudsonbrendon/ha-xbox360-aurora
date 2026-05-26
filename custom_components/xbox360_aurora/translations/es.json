@@ -37,7 +37,12 @@
       "disc_tray": { "name": "Bandeja de disco" },
       "video_output": { "name": "Salida de vídeo" },
       "orientation": { "name": "Orientación" },
-      "smc_version": { "name": "Versión del SMC" }
+      "smc_version": { "name": "Versión del SMC" },
+      "motherboard": { "name": "Placa base" },
+      "console_type": { "name": "Tipo de consola" },
+      "dashboard_version": { "name": "Versión del dashboard" },
+      "serial_number": { "name": "Número de serie" },
+      "console_id": { "name": "ID de la consola" }
     },
     "binary_sensor": {
       "online": { "name": "En línea" }

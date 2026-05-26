@@ -37,7 +37,12 @@
       "disc_tray": { "name": "Disc tray" },
       "video_output": { "name": "Video output" },
       "orientation": { "name": "Orientation" },
-      "smc_version": { "name": "SMC version" }
+      "smc_version": { "name": "SMC version" },
+      "motherboard": { "name": "Motherboard" },
+      "console_type": { "name": "Console type" },
+      "dashboard_version": { "name": "Dashboard version" },
+      "serial_number": { "name": "Serial number" },
+      "console_id": { "name": "Console ID" }
     },
     "binary_sensor": {
       "online": { "name": "Online" }

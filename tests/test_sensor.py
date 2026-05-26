@@ -173,3 +173,40 @@ async def test_smc_sensors(hass: HomeAssistant):
     assert hass.states.get("sensor.xbox_360_1_2_3_4_video_output").state == "hdmi"
     assert hass.states.get("sensor.xbox_360_1_2_3_4_orientation").state == "vertical"
     assert hass.states.get("sensor.xbox_360_1_2_3_4_smc_version").state == "2.3"
+
+
+async def test_system_sensors(hass: HomeAssistant):
+    entry = MockConfigEntry(
+        domain=DOMAIN, data=ENTRY_DATA, unique_id="1.2.3.4:9999", title="Xbox 360 (1.2.3.4)"
+    )
+    entry.add_to_hass(hass)
+    system = {
+        "console": {"motherboard": "Jasper", "type": "Retail"},
+        "consoleid": "ABCDEF123456",
+        "serial": "123456789012",
+        "version": {"major": 2, "minor": 0, "build": 17559, "qfe": 0},
+    }
+    with patch(
+        "custom_components.xbox360_aurora.NovaClient.authenticate", new=AsyncMock(return_value="tok")
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_title", new=AsyncMock(return_value={})
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_temperature", new=AsyncMock(return_value={})
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_memory", new=AsyncMock(return_value={})
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_system", new=AsyncMock(return_value=system)
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_smc", new=AsyncMock(return_value={})
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_profile", new=AsyncMock(return_value=[])
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_systemlink_bandwidth", new=AsyncMock(return_value={})
+    ):
+        assert await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+
+    assert hass.states.get("sensor.xbox_360_1_2_3_4_motherboard").state == "Jasper"
+    assert hass.states.get("sensor.xbox_360_1_2_3_4_console_type").state == "Retail"
+    assert hass.states.get("sensor.xbox_360_1_2_3_4_dashboard_version").state == "2.0.17559.0"
+    assert hass.states.get("sensor.xbox_360_1_2_3_4_serial_number").state == "123456789012"
