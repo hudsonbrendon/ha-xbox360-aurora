@@ -29,7 +29,11 @@
       "cpu_temperature": { "name": "Temperatura de la CPU" },
       "gpu_temperature": { "name": "Temperatura de la GPU" },
       "case_temperature": { "name": "Temperatura de la carcasa" },
-      "free_ram": { "name": "RAM libre" }
+      "free_ram": { "name": "RAM libre" },
+      "used_ram": { "name": "RAM usada" },
+      "total_ram": { "name": "RAM total" },
+      "ram_usage": { "name": "Uso de RAM" },
+      "memory_temperature": { "name": "Temperatura de la memoria" }
     },
     "binary_sensor": {
       "online": { "name": "En línea" }

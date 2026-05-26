@@ -11,7 +11,12 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import UnitOfInformation, UnitOfTemperature
+from homeassistant.const import (
+    PERCENTAGE,
+    EntityCategory,
+    UnitOfInformation,
+    UnitOfTemperature,
+)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import StateType
@@ -35,6 +40,24 @@ def _free_mb(data: dict) -> StateType:
     if free is None:
         return None
     return round(free / 1048576, 1)
+
+
+def _used_mb(data: dict) -> StateType:
+    used = (data.get("memory") or {}).get("used")
+    return None if used is None else round(used / 1048576, 1)
+
+
+def _total_mb(data: dict) -> StateType:
+    total = (data.get("memory") or {}).get("total")
+    return None if total is None else round(total / 1048576, 1)
+
+
+def _ram_usage_pct(data: dict) -> StateType:
+    mem = data.get("memory") or {}
+    used, total = mem.get("used"), mem.get("total")
+    if not used or not total:
+        return None
+    return round(used / total * 100, 1)
 
 
 def _current_title(data: dict) -> StateType:
@@ -90,6 +113,39 @@ SENSORS: tuple[XboxSensorDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=1,
         value_fn=_free_mb,
+    ),
+    XboxSensorDescription(
+        key="used_ram",
+        translation_key="used_ram",
+        device_class=SensorDeviceClass.DATA_SIZE,
+        native_unit_of_measurement=UnitOfInformation.MEGABYTES,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=1,
+        value_fn=_used_mb,
+    ),
+    XboxSensorDescription(
+        key="total_ram",
+        translation_key="total_ram",
+        device_class=SensorDeviceClass.DATA_SIZE,
+        native_unit_of_measurement=UnitOfInformation.MEGABYTES,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=_total_mb,
+    ),
+    XboxSensorDescription(
+        key="ram_usage",
+        translation_key="ram_usage",
+        native_unit_of_measurement=PERCENTAGE,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=1,
+        value_fn=_ram_usage_pct,
+    ),
+    XboxSensorDescription(
+        key="memory_temperature",
+        translation_key="memory_temperature",
+        device_class=SensorDeviceClass.TEMPERATURE,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda data: (data.get("temperature") or {}).get("memory"),
     ),
 )
 

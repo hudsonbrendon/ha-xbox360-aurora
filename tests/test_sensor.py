@@ -108,3 +108,36 @@ async def test_current_title_resolves_game_name(hass: HomeAssistant):
     state = hass.states.get("sensor.xbox_360_1_2_3_4_current_title")
     assert state.state == "Call of Duty: Black Ops II"
     assert state.attributes["title_id"] == "415608C3"
+
+
+async def test_memory_and_memory_temp_sensors(hass: HomeAssistant):
+    entry = MockConfigEntry(
+        domain=DOMAIN, data=ENTRY_DATA, unique_id="1.2.3.4:9999", title="Xbox 360 (1.2.3.4)"
+    )
+    entry.add_to_hass(hass)
+    with patch(
+        "custom_components.xbox360_aurora.NovaClient.authenticate", new=AsyncMock(return_value="tok")
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_title", new=AsyncMock(return_value={"titleid": "DEADBEEF"})
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_temperature",
+        new=AsyncMock(return_value={"cpu": 50, "gpu": 55, "case": 40, "memory": 45, "celsius": True}),
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_memory",
+        new=AsyncMock(return_value={"free": 50, "used": 150, "total": 200}),
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_system", new=AsyncMock(return_value={})
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_smc", new=AsyncMock(return_value={})
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_profile", new=AsyncMock(return_value=[])
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_systemlink_bandwidth", new=AsyncMock(return_value={})
+    ):
+        assert await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+
+    assert hass.states.get("sensor.xbox_360_1_2_3_4_used_ram").state == "0.0"
+    assert hass.states.get("sensor.xbox_360_1_2_3_4_total_ram").state == "0.0"
+    assert hass.states.get("sensor.xbox_360_1_2_3_4_ram_usage").state == "75.0"
+    assert hass.states.get("sensor.xbox_360_1_2_3_4_memory_temperature").state == "45"
