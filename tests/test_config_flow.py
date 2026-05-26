@@ -28,6 +28,9 @@ async def test_user_flow_success(hass: HomeAssistant):
     with patch(
         "custom_components.xbox360_aurora.config_flow.NovaClient.authenticate",
         new=AsyncMock(return_value="tok"),
+    ), patch(
+        "custom_components.xbox360_aurora.async_setup_entry",
+        new=AsyncMock(return_value=True),
     ):
         result = await hass.config_entries.flow.async_init(
             DOMAIN, context={"source": config_entries.SOURCE_USER}

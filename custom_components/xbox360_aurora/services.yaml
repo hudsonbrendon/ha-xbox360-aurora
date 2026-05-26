@@ -1,0 +1,28 @@
+launch_title:
+  name: Launch title
+  description: Launch an executable on the Xbox 360 via Aurora NOVA.
+  fields:
+    exec:
+      name: Executable
+      description: Executable filename.
+      required: true
+      example: default.xex
+      selector:
+        text:
+    path:
+      name: Path
+      description: Aurora drive path to the executable's folder.
+      required: true
+      example: 'Hdd1:\Games\MyGame'
+      selector:
+        text:
+    type:
+      name: Type
+      description: "-1 none, 0 xex, 1 xbe, 2 xex container, 3 xbe container, 4 XNA."
+      required: false
+      default: 0
+      selector:
+        number:
+          min: -1
+          max: 4
+          mode: box
