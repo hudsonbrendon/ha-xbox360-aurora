@@ -76,6 +76,9 @@
       "shutdown": { "name": "Desligar" },
       "restart_aurora": { "name": "Reiniciar o Aurora" }
     },
+    "image": {
+      "gamerpic": { "name": "Foto do perfil" }
+    },
     "switch": {
       "game_paused": { "name": "Jogo pausado" }
     }
