@@ -1,6 +1,6 @@
 [project]
 name = "xbox360-aurora-homeassistant"
-version = "0.2.0"
+version = "0.3.0"
 description = "Home Assistant integration for a jailbroken (RGH/JTAG) Xbox 360 running Aurora + NOVA"
 readme = "README.md"
 requires-python = ">=3.12"

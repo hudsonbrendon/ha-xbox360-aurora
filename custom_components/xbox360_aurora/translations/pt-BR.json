@@ -1,0 +1,62 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Xbox 360 Aurora",
+        "description": "Informe o endereço de rede do seu Xbox 360 e as credenciais do Aurora NOVA + FTP.",
+        "data": {
+          "host": "Host (endereço IP)",
+          "port": "Porta do NOVA",
+          "username": "Usuário do NOVA",
+          "password": "Senha do NOVA",
+          "ftp_port": "Porta do FTP",
+          "ftp_username": "Usuário do FTP",
+          "ftp_password": "Senha do FTP"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Usuário ou senha do NOVA inválidos.",
+      "cannot_connect": "Falha ao conectar. Verifique o IP, a porta e se o Aurora/NOVA está em execução."
+    },
+    "abort": {
+      "already_configured": "Este Xbox 360 já está configurado."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "current_title": { "name": "Título atual" },
+      "cpu_temperature": { "name": "Temperatura da CPU" },
+      "gpu_temperature": { "name": "Temperatura da GPU" },
+      "case_temperature": { "name": "Temperatura do gabinete" },
+      "free_ram": { "name": "RAM livre" }
+    },
+    "binary_sensor": {
+      "online": { "name": "Online" }
+    },
+    "button": {
+      "reboot": { "name": "Reiniciar" },
+      "shutdown": { "name": "Desligar" }
+    }
+  },
+  "services": {
+    "launch_title": {
+      "name": "Iniciar título",
+      "description": "Inicia um executável no Xbox 360 via Aurora NOVA.",
+      "fields": {
+        "exec": {
+          "name": "Executável",
+          "description": "Nome do arquivo executável, ex.: default.xex."
+        },
+        "path": {
+          "name": "Caminho",
+          "description": "Caminho do drive no Aurora até a pasta do executável, ex.: Hdd1:\\Games\\MeuJogo."
+        },
+        "type": {
+          "name": "Tipo",
+          "description": "-1 nenhum, 0 xex, 1 xbe, 2 contêiner xex, 3 contêiner xbe, 4 XNA."
+        }
+      }
+    }
+  }
+}
