@@ -14,6 +14,7 @@ from .const import (
     CONF_FTP_USERNAME,
     DOMAIN,
     FTP_CMD_REBOOT,
+    FTP_CMD_RESTART,
     FTP_CMD_SHUTDOWN,
 )
 from .ftp import site_command
@@ -29,6 +30,7 @@ async def async_setup_entry(
         [
             XboxAuroraButton(entry, "reboot", "reboot", FTP_CMD_REBOOT),
             XboxAuroraButton(entry, "shutdown", "shutdown", FTP_CMD_SHUTDOWN),
+            XboxAuroraButton(entry, "restart_aurora", "restart_aurora", FTP_CMD_RESTART),
         ]
     )
 

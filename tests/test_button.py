@@ -87,3 +87,17 @@ async def test_shutdown_button_sends_site_shutdown(hass: HomeAssistant):
             blocking=True,
         )
     mock_site.assert_called_once_with("1.2.3.4", 21, "xboxftp", "xboxftp", "SHUTDOWN")
+
+
+async def test_restart_aurora_button_sends_site_restart(hass: HomeAssistant):
+    await _setup(hass)
+    with patch(
+        "custom_components.xbox360_aurora.button.site_command", return_value="200 OK"
+    ) as mock_site:
+        await hass.services.async_call(
+            "button",
+            "press",
+            {"entity_id": "button.xbox_360_1_2_3_4_restart_aurora"},
+            blocking=True,
+        )
+    mock_site.assert_called_once_with("1.2.3.4", 21, "xboxftp", "xboxftp", "RESTART")
