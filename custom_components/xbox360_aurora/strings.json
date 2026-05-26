@@ -23,6 +23,14 @@
       "already_configured": "This Xbox 360 is already configured."
     }
   },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Xbox 360 Aurora options",
+        "data": { "scan_interval": "Polling interval (seconds)" }
+      }
+    }
+  },
   "entity": {
     "sensor": {
       "current_title": { "name": "Current title" },

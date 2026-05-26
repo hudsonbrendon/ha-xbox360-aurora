@@ -3,7 +3,9 @@ from __future__ import annotations
 
 import voluptuous as vol
 from homeassistant import config_entries
-from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_PORT, CONF_USERNAME
+from homeassistant.config_entries import ConfigEntry, OptionsFlow
+from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_PORT, CONF_SCAN_INTERVAL, CONF_USERNAME
+from homeassistant.core import callback
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
@@ -17,7 +19,10 @@ from .const import (
     DEFAULT_NOVA_PASSWORD,
     DEFAULT_NOVA_PORT,
     DEFAULT_NOVA_USERNAME,
+    DEFAULT_SCAN_INTERVAL,
     DOMAIN,
+    MAX_SCAN_INTERVAL,
+    MIN_SCAN_INTERVAL,
 )
 from .nova import NovaAuthError, NovaClient, NovaError
 
@@ -38,6 +43,11 @@ class XboxAuroraConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle the UI configuration flow."""
 
     VERSION = 1
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(config_entry: ConfigEntry) -> "XboxAuroraOptionsFlow":
+        return XboxAuroraOptionsFlow()
 
     async def async_step_user(self, user_input: dict | None = None) -> FlowResult:
         errors: dict[str, str] = {}
@@ -68,3 +78,24 @@ class XboxAuroraConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return self.async_show_form(
             step_id="user", data_schema=STEP_USER_SCHEMA, errors=errors
         )
+
+
+class XboxAuroraOptionsFlow(OptionsFlow):
+    """Options: polling interval."""
+
+    async def async_step_init(self, user_input: dict | None = None) -> FlowResult:
+        if user_input is not None:
+            return self.async_create_entry(title="", data=user_input)
+
+        current = self.config_entry.options.get(
+            CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL
+        )
+        schema = vol.Schema(
+            {
+                vol.Required(CONF_SCAN_INTERVAL, default=current): vol.All(
+                    vol.Coerce(int),
+                    vol.Range(min=MIN_SCAN_INTERVAL, max=MAX_SCAN_INTERVAL),
+                )
+            }
+        )
+        return self.async_show_form(step_id="init", data_schema=schema)
