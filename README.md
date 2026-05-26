@@ -26,8 +26,9 @@ reboot, shutdown, and restart-Aurora.
 ## Features
 
 - 🎮 **Now playing** — the running game's name (resolved from a bundled Title ID
-  database of 1700+ titles); the raw `title_id` is kept as an attribute. Unknown
-  titles fall back to the hex ID.
+  database of 1700+ titles); the raw `title_id` is kept as an attribute, along
+  with `media_id`, `title_update_version`, and `disc` (e.g. `1/2`) when present.
+  Unknown titles fall back to the hex ID.
 - 🌡️ **Temperatures** — CPU, GPU, case, and memory sensors (°C).
 - 🧠 **RAM** — free, used, total (MB), and usage (%).
 - 📡 **Online status** — a connectivity binary sensor that flips off when the console
@@ -41,6 +42,11 @@ reboot, shutdown, and restart-Aurora.
 - ⏸️ **Game paused switch** — suspend or resume the running title's main thread via
   NOVA `/thread/state` (optimistic).
 - 🚀 **Launch titles** — a `launch_title` service to start any executable remotely.
+- 🏆 **Achievement progress** — achievements unlocked, total achievements, and
+  gamerscore earned in the running title (primary profile).
+- 🖼️ **Gamerpic** — the signed-in profile's picture, converted from BMP to PNG
+  and served as a standard Home Assistant image entity.
+- 📺 **Video resolution** — current video output resolution (e.g. `1280x720`).
 - 🔁 **Reboot / Shutdown / Restart Aurora** — buttons that issue Aurora FTP `SITE`
   commands.
 - 🏠 **Local polling** — everything runs on your LAN; no cloud, no account.
@@ -120,7 +126,12 @@ The integration creates a single device, **Xbox 360 (`<host>`)**, with:
 
 | Entity | Type | Description |
 |---|---|---|
-| `sensor.xbox_360_<host>_current_title` | sensor | Running game/app name (e.g. `Call of Duty: Black Ops II`); raw ID in the `title_id` attribute. Falls back to the hex ID for unknown titles |
+| `sensor.xbox_360_<host>_current_title` | sensor | Running game/app name (e.g. `Call of Duty: Black Ops II`); raw ID in the `title_id` attribute, plus `media_id`, `title_update_version`, and `disc` (e.g. `1/2`) when available. Falls back to the hex ID for unknown titles |
+| `image.xbox_360_<host>_gamerpic` | image | Signed-in profile's gamerpic |
+| `sensor.xbox_360_<host>_achievements_unlocked` | sensor | Achievements unlocked in the running title (primary profile) |
+| `sensor.xbox_360_<host>_achievements_total` | sensor | Total achievements in the running title |
+| `sensor.xbox_360_<host>_achievement_gamerscore` | sensor | Gamerscore earned in the running title |
+| `sensor.xbox_360_<host>_video_resolution` | sensor | Current video output resolution |
 | `sensor.xbox_360_<host>_cpu_temperature` | sensor | CPU temperature (°C) |
 | `sensor.xbox_360_<host>_gpu_temperature` | sensor | GPU temperature (°C) |
 | `sensor.xbox_360_<host>_case_temperature` | sensor | Case temperature (°C) |
