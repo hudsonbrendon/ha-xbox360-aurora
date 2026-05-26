@@ -45,7 +45,11 @@
       "console_id": { "name": "Console ID" },
       "gamertag": { "name": "Gamertag" },
       "gamerscore": { "name": "Gamerscore" },
-      "signed_in_profiles": { "name": "Signed-in profiles" }
+      "signed_in_profiles": { "name": "Signed-in profiles" },
+      "network_download": { "name": "Network download" },
+      "network_upload": { "name": "Network upload" },
+      "network_total_download": { "name": "Network total download" },
+      "network_total_upload": { "name": "Network total upload" }
     },
     "binary_sensor": {
       "online": { "name": "Online" }

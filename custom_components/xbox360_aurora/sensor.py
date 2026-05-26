@@ -14,6 +14,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     PERCENTAGE,
     EntityCategory,
+    UnitOfDataRate,
     UnitOfInformation,
     UnitOfTemperature,
 )
@@ -274,6 +275,42 @@ SENSORS: tuple[XboxSensorDescription, ...] = (
         icon="mdi:account-multiple",
         state_class=SensorStateClass.MEASUREMENT,
         value_fn=_signed_in_count,
+    ),
+    XboxSensorDescription(
+        key="network_download",
+        translation_key="network_download",
+        device_class=SensorDeviceClass.DATA_RATE,
+        native_unit_of_measurement=UnitOfDataRate.BYTES_PER_SECOND,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=0,
+        value_fn=lambda data: (data.get("bandwidth") or {}).get("rate", {}).get("downstream"),
+    ),
+    XboxSensorDescription(
+        key="network_upload",
+        translation_key="network_upload",
+        device_class=SensorDeviceClass.DATA_RATE,
+        native_unit_of_measurement=UnitOfDataRate.BYTES_PER_SECOND,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=0,
+        value_fn=lambda data: (data.get("bandwidth") or {}).get("rate", {}).get("upstream"),
+    ),
+    XboxSensorDescription(
+        key="network_total_download",
+        translation_key="network_total_download",
+        device_class=SensorDeviceClass.DATA_SIZE,
+        native_unit_of_measurement=UnitOfInformation.BYTES,
+        state_class=SensorStateClass.TOTAL_INCREASING,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda data: (data.get("bandwidth") or {}).get("bytes", {}).get("downstream"),
+    ),
+    XboxSensorDescription(
+        key="network_total_upload",
+        translation_key="network_total_upload",
+        device_class=SensorDeviceClass.DATA_SIZE,
+        native_unit_of_measurement=UnitOfInformation.BYTES,
+        state_class=SensorStateClass.TOTAL_INCREASING,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda data: (data.get("bandwidth") or {}).get("bytes", {}).get("upstream"),
     ),
 )
 

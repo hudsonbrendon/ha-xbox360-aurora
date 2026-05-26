@@ -45,7 +45,11 @@
       "console_id": { "name": "ID de la consola" },
       "gamertag": { "name": "Gamertag" },
       "gamerscore": { "name": "Gamerscore" },
-      "signed_in_profiles": { "name": "Perfiles conectados" }
+      "signed_in_profiles": { "name": "Perfiles conectados" },
+      "network_download": { "name": "Descarga de red" },
+      "network_upload": { "name": "Subida de red" },
+      "network_total_download": { "name": "Total descargado de red" },
+      "network_total_upload": { "name": "Total subido de red" }
     },
     "binary_sensor": {
       "online": { "name": "En línea" }

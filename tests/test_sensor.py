@@ -245,3 +245,33 @@ async def test_profile_sensors(hass: HomeAssistant):
     assert hass.states.get("sensor.xbox_360_1_2_3_4_gamertag").state == "Hudson"
     assert hass.states.get("sensor.xbox_360_1_2_3_4_gamerscore").state == "1234"
     assert hass.states.get("sensor.xbox_360_1_2_3_4_signed_in_profiles").state == "2"
+
+
+async def test_bandwidth_sensors(hass: HomeAssistant):
+    entry = MockConfigEntry(
+        domain=DOMAIN, data=ENTRY_DATA, unique_id="1.2.3.4:9999", title="Xbox 360 (1.2.3.4)"
+    )
+    entry.add_to_hass(hass)
+    bw = {"rate": {"downstream": 2048.0, "upstream": 1024.0}, "bytes": {"downstream": 1048576, "upstream": 524288}}
+    with patch(
+        "custom_components.xbox360_aurora.NovaClient.authenticate", new=AsyncMock(return_value="tok")
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_title", new=AsyncMock(return_value={})
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_temperature", new=AsyncMock(return_value={})
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_memory", new=AsyncMock(return_value={})
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_system", new=AsyncMock(return_value={})
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_smc", new=AsyncMock(return_value={})
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_profile", new=AsyncMock(return_value=[])
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_systemlink_bandwidth", new=AsyncMock(return_value=bw)
+    ):
+        assert await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+
+    assert hass.states.get("sensor.xbox_360_1_2_3_4_network_download").state == "2048.0"
+    assert hass.states.get("sensor.xbox_360_1_2_3_4_network_upload").state == "1024.0"
