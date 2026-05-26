@@ -17,7 +17,15 @@ def test_default_ports():
 
 
 def test_platforms_registered():
-    assert len(PLATFORMS) == 4
+    assert len(PLATFORMS) == 5
+
+
+def test_image_platform_registered():
+    from homeassistant.const import Platform
+    from custom_components.xbox360_aurora.const import PLATFORMS
+
+    assert Platform.IMAGE in PLATFORMS
+    assert len(PLATFORMS) == 5
 
 
 def test_switch_platform_and_new_consts():
