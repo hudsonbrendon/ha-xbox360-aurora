@@ -1,4 +1,6 @@
 """Fixtures for Xbox 360 Aurora tests."""
+from unittest.mock import AsyncMock, patch
+
 import aiohttp.resolver
 import homeassistant.helpers.aiohttp_client as _ha_aiohttp_client
 import pytest
@@ -32,3 +34,28 @@ def _use_threaded_resolver():
         yield
     finally:
         _ha_aiohttp_client.AsyncResolver = original
+
+
+@pytest.fixture
+def mock_nova():
+    """Patch all coordinator-polled NovaClient methods with overridable AsyncMocks.
+
+    Yields a dict keyed by method name; tests set `.return_value` (or
+    `.side_effect`) before calling async_setup to customize responses.
+    """
+    defaults = {
+        "authenticate": AsyncMock(return_value="tok"),
+        "get_title": AsyncMock(return_value={}),
+        "get_temperature": AsyncMock(return_value={}),
+        "get_memory": AsyncMock(return_value={}),
+        "get_system": AsyncMock(return_value={}),
+        "get_smc": AsyncMock(return_value={}),
+        "get_profile": AsyncMock(return_value=[]),
+        "get_systemlink_bandwidth": AsyncMock(return_value={}),
+        "get_achievement": AsyncMock(return_value=[]),
+        "get_achievement_player": AsyncMock(return_value=[]),
+    }
+    with patch.multiple(
+        "custom_components.xbox360_aurora.nova.NovaClient", create=True, **defaults
+    ):
+        yield defaults

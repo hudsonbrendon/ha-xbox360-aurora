@@ -1,6 +1,4 @@
 """Tests for the connectivity binary sensor."""
-from unittest.mock import AsyncMock, patch
-
 from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_PORT, CONF_USERNAME
 from homeassistant.core import HomeAssistant
 from pytest_homeassistant_custom_component.common import MockConfigEntry
@@ -24,7 +22,12 @@ ENTRY_DATA = {
 }
 
 
-async def test_connectivity_on_when_polling_succeeds(hass: HomeAssistant):
+async def test_connectivity_on_when_polling_succeeds(hass: HomeAssistant, mock_nova):
+    mock_nova["get_title"].return_value = {"titleid": "1"}
+    mock_nova["get_temperature"].return_value = {
+        "cpu": 1, "gpu": 1, "case": 1, "memory": 1, "celsius": True
+    }
+    mock_nova["get_memory"].return_value = {"free": 1, "used": 1, "total": 1}
     entry = MockConfigEntry(
         domain=DOMAIN,
         data=ENTRY_DATA,
@@ -32,40 +35,22 @@ async def test_connectivity_on_when_polling_succeeds(hass: HomeAssistant):
         title="Xbox 360 (1.2.3.4)",
     )
     entry.add_to_hass(hass)
-    with patch(
-        "custom_components.xbox360_aurora.NovaClient.authenticate",
-        new=AsyncMock(return_value="tok"),
-    ), patch(
-        "custom_components.xbox360_aurora.coordinator.NovaClient.get_title",
-        new=AsyncMock(return_value={"titleid": "1"}),
-    ), patch(
-        "custom_components.xbox360_aurora.coordinator.NovaClient.get_temperature",
-        new=AsyncMock(return_value={"cpu": 1, "gpu": 1, "case": 1, "memory": 1, "celsius": True}),
-    ), patch(
-        "custom_components.xbox360_aurora.coordinator.NovaClient.get_memory",
-        new=AsyncMock(return_value={"free": 1, "used": 1, "total": 1}),
-    ), patch(
-        "custom_components.xbox360_aurora.coordinator.NovaClient.get_system",
-        new=AsyncMock(return_value={}),
-    ), patch(
-        "custom_components.xbox360_aurora.coordinator.NovaClient.get_smc",
-        new=AsyncMock(return_value={}),
-    ), patch(
-        "custom_components.xbox360_aurora.coordinator.NovaClient.get_profile",
-        new=AsyncMock(return_value=[]),
-    ), patch(
-        "custom_components.xbox360_aurora.coordinator.NovaClient.get_systemlink_bandwidth",
-        new=AsyncMock(return_value={}),
-    ):
-        assert await hass.config_entries.async_setup(entry.entry_id)
-        await hass.async_block_till_done()
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
 
     state = hass.states.get("binary_sensor.xbox_360_1_2_3_4_online")
     assert state is not None
     assert state.state == "on"
 
 
-async def test_connectivity_off_when_polling_fails(hass: HomeAssistant):
+async def test_connectivity_off_when_polling_fails(hass: HomeAssistant, mock_nova):
+    # Set return_values for initial successful setup
+    mock_nova["get_title"].return_value = {"titleid": "1"}
+    mock_nova["get_temperature"].return_value = {
+        "cpu": 1, "gpu": 1, "case": 1, "memory": 1, "celsius": True
+    }
+    mock_nova["get_memory"].return_value = {"free": 1, "used": 1, "total": 1}
+
     entry = MockConfigEntry(
         domain=DOMAIN,
         data=ENTRY_DATA,
@@ -73,59 +58,20 @@ async def test_connectivity_off_when_polling_fails(hass: HomeAssistant):
         title="Xbox 360 (1.2.3.4)",
     )
     entry.add_to_hass(hass)
-    with patch(
-        "custom_components.xbox360_aurora.NovaClient.authenticate",
-        new=AsyncMock(return_value="tok"),
-    ), patch(
-        "custom_components.xbox360_aurora.coordinator.NovaClient.get_title",
-        new=AsyncMock(side_effect=NovaConnectionError("offline")),
-    ), patch(
-        "custom_components.xbox360_aurora.coordinator.NovaClient.get_temperature",
-        new=AsyncMock(side_effect=NovaConnectionError("offline")),
-    ), patch(
-        "custom_components.xbox360_aurora.coordinator.NovaClient.get_memory",
-        new=AsyncMock(side_effect=NovaConnectionError("offline")),
-    ), patch(
-        "custom_components.xbox360_aurora.coordinator.NovaClient.get_smc",
-        new=AsyncMock(side_effect=NovaConnectionError("offline")),
-    ), patch(
-        "custom_components.xbox360_aurora.coordinator.NovaClient.get_profile",
-        new=AsyncMock(side_effect=NovaConnectionError("offline")),
-    ), patch(
-        "custom_components.xbox360_aurora.coordinator.NovaClient.get_systemlink_bandwidth",
-        new=AsyncMock(side_effect=NovaConnectionError("offline")),
-    ):
-        # First refresh fails -> entry setup raises ConfigEntryNotReady.
-        # We still want the binary sensor available and "off", so we force a
-        # successful setup first, then a failed refresh.
-        with patch(
-            "custom_components.xbox360_aurora.coordinator.NovaClient.get_title",
-            new=AsyncMock(return_value={"titleid": "1"}),
-        ), patch(
-            "custom_components.xbox360_aurora.coordinator.NovaClient.get_temperature",
-            new=AsyncMock(return_value={"cpu": 1, "gpu": 1, "case": 1, "memory": 1, "celsius": True}),
-        ), patch(
-            "custom_components.xbox360_aurora.coordinator.NovaClient.get_memory",
-            new=AsyncMock(return_value={"free": 1, "used": 1, "total": 1}),
-        ), patch(
-            "custom_components.xbox360_aurora.coordinator.NovaClient.get_system",
-            new=AsyncMock(return_value={}),
-        ), patch(
-            "custom_components.xbox360_aurora.coordinator.NovaClient.get_smc",
-            new=AsyncMock(return_value={}),
-        ), patch(
-            "custom_components.xbox360_aurora.coordinator.NovaClient.get_profile",
-            new=AsyncMock(return_value=[]),
-        ), patch(
-            "custom_components.xbox360_aurora.coordinator.NovaClient.get_systemlink_bandwidth",
-            new=AsyncMock(return_value={}),
-        ):
-            assert await hass.config_entries.async_setup(entry.entry_id)
-            await hass.async_block_till_done()
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
 
-        coordinator = hass.data[DOMAIN][entry.entry_id]
-        await coordinator.async_refresh()
-        await hass.async_block_till_done()
+    # Now set side_effects to simulate a connection failure on the next refresh
+    mock_nova["get_title"].side_effect = NovaConnectionError("offline")
+    mock_nova["get_temperature"].side_effect = NovaConnectionError("offline")
+    mock_nova["get_memory"].side_effect = NovaConnectionError("offline")
+    mock_nova["get_smc"].side_effect = NovaConnectionError("offline")
+    mock_nova["get_profile"].side_effect = NovaConnectionError("offline")
+    mock_nova["get_systemlink_bandwidth"].side_effect = NovaConnectionError("offline")
+
+    coordinator = hass.data[DOMAIN][entry.entry_id]
+    await coordinator.async_refresh()
+    await hass.async_block_till_done()
 
     state = hass.states.get("binary_sensor.xbox_360_1_2_3_4_online")
     assert state.state == "off"

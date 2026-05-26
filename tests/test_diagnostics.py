@@ -1,7 +1,4 @@
 """Tests for config entry diagnostics."""
-import contextlib
-from unittest.mock import AsyncMock, patch
-
 from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_PORT, CONF_USERNAME
 from homeassistant.core import HomeAssistant
 from pytest_homeassistant_custom_component.common import MockConfigEntry
@@ -27,26 +24,20 @@ ENTRY_DATA = {
 }
 
 
-async def test_diagnostics_redacts_secrets(hass: HomeAssistant):
-    system = {"serial": "123", "cpukey": "AAAA", "dvdkey": "BBBB", "console": {"motherboard": "Jasper"}}
-    entry = MockConfigEntry(domain=DOMAIN, data=ENTRY_DATA, unique_id="1.2.3.4:9999", title="Xbox 360 (1.2.3.4)")
+async def test_diagnostics_redacts_secrets(hass: HomeAssistant, mock_nova):
+    system = {
+        "serial": "123", "cpukey": "AAAA", "dvdkey": "BBBB",
+        "console": {"motherboard": "Jasper"},
+    }
+    mock_nova["get_title"].return_value = {"titleid": "DEADBEEF"}
+    mock_nova["get_system"].return_value = system
+    entry = MockConfigEntry(
+        domain=DOMAIN, data=ENTRY_DATA, unique_id="1.2.3.4:9999", title="Xbox 360 (1.2.3.4)"
+    )
     entry.add_to_hass(hass)
-    patches = [
-        patch("custom_components.xbox360_aurora.NovaClient.authenticate", new=AsyncMock(return_value="tok")),
-        patch("custom_components.xbox360_aurora.coordinator.NovaClient.get_title", new=AsyncMock(return_value={"titleid": "DEADBEEF"})),
-        patch("custom_components.xbox360_aurora.coordinator.NovaClient.get_temperature", new=AsyncMock(return_value={})),
-        patch("custom_components.xbox360_aurora.coordinator.NovaClient.get_memory", new=AsyncMock(return_value={})),
-        patch("custom_components.xbox360_aurora.coordinator.NovaClient.get_system", new=AsyncMock(return_value=system)),
-        patch("custom_components.xbox360_aurora.coordinator.NovaClient.get_smc", new=AsyncMock(return_value={})),
-        patch("custom_components.xbox360_aurora.coordinator.NovaClient.get_profile", new=AsyncMock(return_value=[])),
-        patch("custom_components.xbox360_aurora.coordinator.NovaClient.get_systemlink_bandwidth", new=AsyncMock(return_value={})),
-    ]
-    with contextlib.ExitStack() as stack:
-        for p in patches:
-            stack.enter_context(p)
-        assert await hass.config_entries.async_setup(entry.entry_id)
-        await hass.async_block_till_done()
-        diag = await async_get_config_entry_diagnostics(hass, entry)
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+    diag = await async_get_config_entry_diagnostics(hass, entry)
 
     assert diag["entry_data"][CONF_PASSWORD] == "**REDACTED**"
     assert diag["entry_data"][CONF_FTP_PASSWORD] == "**REDACTED**"

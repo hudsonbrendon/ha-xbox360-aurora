@@ -1,5 +1,5 @@
 """Tests for reboot/shutdown buttons."""
-from unittest.mock import AsyncMock, patch
+from unittest.mock import patch
 
 from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_PORT, CONF_USERNAME
 from homeassistant.core import HomeAssistant
@@ -23,7 +23,12 @@ ENTRY_DATA = {
 }
 
 
-async def _setup(hass: HomeAssistant) -> MockConfigEntry:
+async def _setup(hass: HomeAssistant, mock_nova) -> MockConfigEntry:
+    mock_nova["get_title"].return_value = {"titleid": "1"}
+    mock_nova["get_temperature"].return_value = {
+        "cpu": 1, "gpu": 1, "case": 1, "memory": 1, "celsius": True
+    }
+    mock_nova["get_memory"].return_value = {"free": 1, "used": 1, "total": 1}
     entry = MockConfigEntry(
         domain=DOMAIN,
         data=ENTRY_DATA,
@@ -31,38 +36,13 @@ async def _setup(hass: HomeAssistant) -> MockConfigEntry:
         title="Xbox 360 (1.2.3.4)",
     )
     entry.add_to_hass(hass)
-    with patch(
-        "custom_components.xbox360_aurora.NovaClient.authenticate",
-        new=AsyncMock(return_value="tok"),
-    ), patch(
-        "custom_components.xbox360_aurora.coordinator.NovaClient.get_title",
-        new=AsyncMock(return_value={"titleid": "1"}),
-    ), patch(
-        "custom_components.xbox360_aurora.coordinator.NovaClient.get_temperature",
-        new=AsyncMock(return_value={"cpu": 1, "gpu": 1, "case": 1, "memory": 1, "celsius": True}),
-    ), patch(
-        "custom_components.xbox360_aurora.coordinator.NovaClient.get_memory",
-        new=AsyncMock(return_value={"free": 1, "used": 1, "total": 1}),
-    ), patch(
-        "custom_components.xbox360_aurora.coordinator.NovaClient.get_system",
-        new=AsyncMock(return_value={}),
-    ), patch(
-        "custom_components.xbox360_aurora.coordinator.NovaClient.get_smc",
-        new=AsyncMock(return_value={}),
-    ), patch(
-        "custom_components.xbox360_aurora.coordinator.NovaClient.get_profile",
-        new=AsyncMock(return_value=[]),
-    ), patch(
-        "custom_components.xbox360_aurora.coordinator.NovaClient.get_systemlink_bandwidth",
-        new=AsyncMock(return_value={}),
-    ):
-        assert await hass.config_entries.async_setup(entry.entry_id)
-        await hass.async_block_till_done()
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
     return entry
 
 
-async def test_reboot_button_sends_site_reboot(hass: HomeAssistant):
-    await _setup(hass)
+async def test_reboot_button_sends_site_reboot(hass: HomeAssistant, mock_nova):
+    await _setup(hass, mock_nova)
     with patch(
         "custom_components.xbox360_aurora.button.site_command", return_value="200 OK"
     ) as mock_site:
@@ -75,8 +55,8 @@ async def test_reboot_button_sends_site_reboot(hass: HomeAssistant):
     mock_site.assert_called_once_with("1.2.3.4", 21, "xboxftp", "xboxftp", "REBOOT")
 
 
-async def test_shutdown_button_sends_site_shutdown(hass: HomeAssistant):
-    await _setup(hass)
+async def test_shutdown_button_sends_site_shutdown(hass: HomeAssistant, mock_nova):
+    await _setup(hass, mock_nova)
     with patch(
         "custom_components.xbox360_aurora.button.site_command", return_value="200 OK"
     ) as mock_site:
@@ -89,8 +69,8 @@ async def test_shutdown_button_sends_site_shutdown(hass: HomeAssistant):
     mock_site.assert_called_once_with("1.2.3.4", 21, "xboxftp", "xboxftp", "SHUTDOWN")
 
 
-async def test_restart_aurora_button_sends_site_restart(hass: HomeAssistant):
-    await _setup(hass)
+async def test_restart_aurora_button_sends_site_restart(hass: HomeAssistant, mock_nova):
+    await _setup(hass, mock_nova)
     with patch(
         "custom_components.xbox360_aurora.button.site_command", return_value="200 OK"
     ) as mock_site:

@@ -1,5 +1,4 @@
 """Tests for integration setup, unload, and the launch_title service."""
-import contextlib
 from unittest.mock import AsyncMock, patch
 
 from homeassistant.config_entries import ConfigEntryState
@@ -28,37 +27,26 @@ ENTRY_DATA = {
     CONF_FTP_PASSWORD: "xboxftp",
 }
 
+TITLE_PAYLOAD = {"titleid": "DEADBEEF", "path": r"Hdd1:\Games\X"}
 TEMP_PAYLOAD = {"cpu": 50, "gpu": 55, "case": 40, "memory": 45, "celsius": True}
 MEM_PAYLOAD = {"free": 104857600, "used": 200, "total": 300}
-TITLE_PAYLOAD = {"titleid": "DEADBEEF", "path": r"Hdd1:\Games\X"}
 
 
-def _setup_entry_patches():
-    return [
-        patch("custom_components.xbox360_aurora.NovaClient.authenticate", new=AsyncMock(return_value="tok")),
-        patch("custom_components.xbox360_aurora.coordinator.NovaClient.get_title", new=AsyncMock(return_value=TITLE_PAYLOAD)),
-        patch("custom_components.xbox360_aurora.coordinator.NovaClient.get_temperature", new=AsyncMock(return_value=TEMP_PAYLOAD)),
-        patch("custom_components.xbox360_aurora.coordinator.NovaClient.get_memory", new=AsyncMock(return_value=MEM_PAYLOAD)),
-        patch("custom_components.xbox360_aurora.coordinator.NovaClient.get_system", new=AsyncMock(return_value={"console": {"motherboard": "Jasper"}})),
-        patch("custom_components.xbox360_aurora.coordinator.NovaClient.get_smc", new=AsyncMock(return_value={"avpack": 1, "traystate": 4})),
-        patch("custom_components.xbox360_aurora.coordinator.NovaClient.get_profile", new=AsyncMock(return_value=[{"gamertag": "Hudson", "gamerscore": 100, "signedin": 1, "index": 0}])),
-        patch("custom_components.xbox360_aurora.coordinator.NovaClient.get_systemlink_bandwidth", new=AsyncMock(return_value={"rate": {"downstream": 0.0, "upstream": 0.0}, "bytes": {"downstream": 0, "upstream": 0}})),
-    ]
-
-
-async def _setup_entry(hass: HomeAssistant) -> MockConfigEntry:
-    entry = MockConfigEntry(domain=DOMAIN, data=ENTRY_DATA, unique_id="1.2.3.4:9999", title="Xbox 360 (1.2.3.4)")
+async def _setup_entry(hass: HomeAssistant, mock_nova) -> MockConfigEntry:
+    mock_nova["get_title"].return_value = TITLE_PAYLOAD
+    mock_nova["get_temperature"].return_value = TEMP_PAYLOAD
+    mock_nova["get_memory"].return_value = MEM_PAYLOAD
+    entry = MockConfigEntry(
+        domain=DOMAIN, data=ENTRY_DATA, unique_id="1.2.3.4:9999", title="Xbox 360 (1.2.3.4)"
+    )
     entry.add_to_hass(hass)
-    with contextlib.ExitStack() as stack:
-        for p in _setup_entry_patches():
-            stack.enter_context(p)
-        assert await hass.config_entries.async_setup(entry.entry_id)
-        await hass.async_block_till_done()
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
     return entry
 
 
-async def test_setup_and_unload_entry(hass: HomeAssistant):
-    entry = await _setup_entry(hass)
+async def test_setup_and_unload_entry(hass: HomeAssistant, mock_nova):
+    entry = await _setup_entry(hass, mock_nova)
     assert entry.state is ConfigEntryState.LOADED
     assert entry.entry_id in hass.data[DOMAIN]
 
@@ -68,8 +56,8 @@ async def test_setup_and_unload_entry(hass: HomeAssistant):
     assert entry.entry_id not in hass.data[DOMAIN]
 
 
-async def test_launch_title_service_calls_nova(hass: HomeAssistant):
-    await _setup_entry(hass)
+async def test_launch_title_service_calls_nova(hass: HomeAssistant, mock_nova):
+    await _setup_entry(hass, mock_nova)
     assert hass.services.has_service(DOMAIN, SERVICE_LAUNCH_TITLE)
 
     with patch(
