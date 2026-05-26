@@ -22,5 +22,21 @@
     "abort": {
       "already_configured": "This Xbox 360 is already configured."
     }
+  },
+  "entity": {
+    "sensor": {
+      "current_title": { "name": "Current title" },
+      "cpu_temperature": { "name": "CPU temperature" },
+      "gpu_temperature": { "name": "GPU temperature" },
+      "case_temperature": { "name": "Case temperature" },
+      "free_ram": { "name": "Free RAM" }
+    },
+    "binary_sensor": {
+      "online": { "name": "Online" }
+    },
+    "button": {
+      "reboot": { "name": "Reboot" },
+      "shutdown": { "name": "Shutdown" }
+    }
   }
 }
