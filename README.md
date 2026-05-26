@@ -153,10 +153,11 @@ automation:
 
 ## Development
 
+This project uses [uv](https://docs.astral.sh/uv/).
+
 ```bash
-python3.12 -m venv .venv
-.venv/bin/pip install -r requirements-test.txt
-.venv/bin/pytest -v
+uv sync
+uv run pytest -v
 ```
 
 ## Credits

@@ -1,0 +1,21 @@
+[project]
+name = "xbox360-aurora-homeassistant"
+version = "0.1.0"
+description = "Home Assistant integration for a jailbroken (RGH/JTAG) Xbox 360 running Aurora + NOVA"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "homeassistant",
+    "pytest",
+    "pytest-asyncio",
+    "pytest-homeassistant-custom-component",
+    "aioresponses",
+]
+
+[tool.uv]
+# The integration lives under custom_components/; this project is deps-only.
+package = false
