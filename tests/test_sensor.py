@@ -275,3 +275,44 @@ async def test_bandwidth_sensors(hass: HomeAssistant):
 
     assert hass.states.get("sensor.xbox_360_1_2_3_4_network_download").state == "2048.0"
     assert hass.states.get("sensor.xbox_360_1_2_3_4_network_upload").state == "1024.0"
+
+
+from homeassistant.helpers import device_registry as dr
+
+
+async def test_device_info_enriched_from_system(hass: HomeAssistant):
+    entry = MockConfigEntry(
+        domain=DOMAIN, data=ENTRY_DATA, unique_id="1.2.3.4:9999", title="Xbox 360 (1.2.3.4)"
+    )
+    entry.add_to_hass(hass)
+    system = {
+        "console": {"motherboard": "Jasper", "type": "Retail"},
+        "serial": "123456789012",
+        "version": {"major": 2, "minor": 0, "build": 17559, "qfe": 0},
+    }
+    with patch(
+        "custom_components.xbox360_aurora.NovaClient.authenticate", new=AsyncMock(return_value="tok")
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_title", new=AsyncMock(return_value={})
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_temperature", new=AsyncMock(return_value={})
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_memory", new=AsyncMock(return_value={})
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_system", new=AsyncMock(return_value=system)
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_smc", new=AsyncMock(return_value={})
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_profile", new=AsyncMock(return_value=[])
+    ), patch(
+        "custom_components.xbox360_aurora.coordinator.NovaClient.get_systemlink_bandwidth", new=AsyncMock(return_value={})
+    ):
+        assert await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+
+    registry = dr.async_get(hass)
+    device = registry.async_get_device(identifiers={(DOMAIN, entry.entry_id)})
+    assert device is not None
+    assert device.model == "Xbox 360 Jasper"
+    assert device.serial_number == "123456789012"
+    assert device.sw_version == "2.0.17559.0"
