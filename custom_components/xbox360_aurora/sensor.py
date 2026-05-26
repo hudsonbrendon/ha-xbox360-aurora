@@ -113,6 +113,39 @@ def _current_title_attrs(data: dict) -> dict[str, StateType]:
     return {"title_id": normalize_title_id(title_id)}
 
 
+def _player_slot(data: dict) -> int:
+    """Index (0-3) of the primary signed-in profile, default 0."""
+    profile = _primary_profile(data)
+    return profile.get("index", 0) if profile else 0
+
+
+def _achievements_unlocked(data: dict) -> StateType:
+    slot = _player_slot(data)
+    players = data.get("achievement_player") or []
+    if not players:
+        return None
+    return sum(1 for a in players if (a.get("player") or [])[slot:slot + 1] == [1])
+
+
+def _achievements_total(data: dict) -> StateType:
+    achievements = data.get("achievement") or []
+    return len(achievements) if achievements else None
+
+
+def _achievement_gamerscore(data: dict) -> StateType:
+    slot = _player_slot(data)
+    players = data.get("achievement_player") or []
+    if not players:
+        return None
+    cred_by_id = {a.get("id"): a.get("cred", 0) for a in (data.get("achievement") or [])}
+    earned = 0
+    for entry in players:
+        flags = entry.get("player") or []
+        if flags[slot:slot + 1] == [1]:
+            earned += cred_by_id.get(entry.get("id"), 0)
+    return earned
+
+
 SENSORS: tuple[XboxSensorDescription, ...] = (
     XboxSensorDescription(
         key="current_title",
@@ -311,6 +344,26 @@ SENSORS: tuple[XboxSensorDescription, ...] = (
         state_class=SensorStateClass.TOTAL_INCREASING,
         entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=lambda data: ((data.get("bandwidth") or {}).get("bytes") or {}).get("upstream"),
+    ),
+    XboxSensorDescription(
+        key="achievements_unlocked",
+        translation_key="achievements_unlocked",
+        icon="mdi:trophy-award",
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=_achievements_unlocked,
+    ),
+    XboxSensorDescription(
+        key="achievements_total",
+        translation_key="achievements_total",
+        icon="mdi:trophy-outline",
+        value_fn=_achievements_total,
+    ),
+    XboxSensorDescription(
+        key="achievement_gamerscore",
+        translation_key="achievement_gamerscore",
+        icon="mdi:star-four-points",
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=_achievement_gamerscore,
     ),
 )
 

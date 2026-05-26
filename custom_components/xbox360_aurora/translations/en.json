@@ -63,7 +63,10 @@
       "network_download": { "name": "Network download" },
       "network_upload": { "name": "Network upload" },
       "network_total_download": { "name": "Network total download" },
-      "network_total_upload": { "name": "Network total upload" }
+      "network_total_upload": { "name": "Network total upload" },
+      "achievements_unlocked": { "name": "Achievements unlocked" },
+      "achievements_total": { "name": "Achievements total" },
+      "achievement_gamerscore": { "name": "Achievement gamerscore" }
     },
     "binary_sensor": {
       "online": { "name": "Online" }

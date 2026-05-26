@@ -63,7 +63,10 @@
       "network_download": { "name": "Descarga de red" },
       "network_upload": { "name": "Subida de red" },
       "network_total_download": { "name": "Total descargado de red" },
-      "network_total_upload": { "name": "Total subido de red" }
+      "network_total_upload": { "name": "Total subido de red" },
+      "achievements_unlocked": { "name": "Logros desbloqueados" },
+      "achievements_total": { "name": "Logros totales" },
+      "achievement_gamerscore": { "name": "Gamerscore de logros" }
     },
     "binary_sensor": {
       "online": { "name": "En línea" }

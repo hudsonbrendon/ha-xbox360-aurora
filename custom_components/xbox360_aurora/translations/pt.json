@@ -63,7 +63,10 @@
       "network_download": { "name": "Download de rede" },
       "network_upload": { "name": "Upload de rede" },
       "network_total_download": { "name": "Total baixado na rede" },
-      "network_total_upload": { "name": "Total enviado na rede" }
+      "network_total_upload": { "name": "Total enviado na rede" },
+      "achievements_unlocked": { "name": "Conquistas desbloqueadas" },
+      "achievements_total": { "name": "Conquistas totais" },
+      "achievement_gamerscore": { "name": "Gamerscore das conquistas" }
     },
     "binary_sensor": {
       "online": { "name": "Online" }

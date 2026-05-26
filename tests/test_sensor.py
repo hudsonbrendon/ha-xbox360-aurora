@@ -178,3 +178,27 @@ async def test_device_info_enriched_from_system(hass: HomeAssistant, mock_nova):
     assert device.model == "Xbox 360 Jasper"
     assert device.serial_number == "123456789012"
     assert device.sw_version == "2.0.17559.0"
+
+
+async def test_achievement_sensors(hass: HomeAssistant, mock_nova):
+    mock_nova["get_profile"].return_value = [
+        {"gamertag": "Hudson", "gamerscore": 1000, "signedin": 1, "index": 0}
+    ]
+    mock_nova["get_achievement"].return_value = [
+        {"id": 1, "cred": 20}, {"id": 2, "cred": 30}, {"id": 3, "cred": 50}
+    ]
+    mock_nova["get_achievement_player"].return_value = [
+        {"id": 1, "player": [1, 0, 0, 0]},
+        {"id": 2, "player": [1, 0, 0, 0]},
+        {"id": 3, "player": [0, 0, 0, 0]},
+    ]
+    entry = MockConfigEntry(
+        domain=DOMAIN, data=ENTRY_DATA, unique_id="1.2.3.4:9999", title="Xbox 360 (1.2.3.4)"
+    )
+    entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+
+    assert hass.states.get("sensor.xbox_360_1_2_3_4_achievements_unlocked").state == "2"
+    assert hass.states.get("sensor.xbox_360_1_2_3_4_achievements_total").state == "3"
+    assert hass.states.get("sensor.xbox_360_1_2_3_4_achievement_gamerscore").state == "50"
