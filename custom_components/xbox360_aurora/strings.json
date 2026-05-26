@@ -1,0 +1,26 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Xbox 360 Aurora",
+        "description": "Enter your Xbox 360's network address and the Aurora NOVA + FTP credentials.",
+        "data": {
+          "host": "Host (IP address)",
+          "port": "NOVA port",
+          "username": "NOVA username",
+          "password": "NOVA password",
+          "ftp_port": "FTP port",
+          "ftp_username": "FTP username",
+          "ftp_password": "FTP password"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Invalid NOVA username or password.",
+      "cannot_connect": "Failed to connect. Check the IP, port, and that Aurora/NOVA is running."
+    },
+    "abort": {
+      "already_configured": "This Xbox 360 is already configured."
+    }
+  }
+}
