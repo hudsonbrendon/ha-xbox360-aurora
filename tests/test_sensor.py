@@ -202,3 +202,26 @@ async def test_achievement_sensors(hass: HomeAssistant, mock_nova):
     assert hass.states.get("sensor.xbox_360_1_2_3_4_achievements_unlocked").state == "2"
     assert hass.states.get("sensor.xbox_360_1_2_3_4_achievements_total").state == "3"
     assert hass.states.get("sensor.xbox_360_1_2_3_4_achievement_gamerscore").state == "50"
+
+
+async def test_title_extras(hass: HomeAssistant, mock_nova):
+    mock_nova["get_title"].return_value = {
+        "titleid": "415608C3",
+        "mediaid": "1CF74090",
+        "tuver": 5,
+        "disc": {"count": 2, "current": 1},
+        "resolution": {"width": 1280, "height": 720},
+    }
+    entry = MockConfigEntry(
+        domain=DOMAIN, data=ENTRY_DATA, unique_id="1.2.3.4:9999", title="Xbox 360 (1.2.3.4)"
+    )
+    entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+
+    assert hass.states.get("sensor.xbox_360_1_2_3_4_video_resolution").state == "1280x720"
+
+    title_state = hass.states.get("sensor.xbox_360_1_2_3_4_current_title")
+    assert title_state.attributes["media_id"] == "1CF74090"
+    assert title_state.attributes["title_update_version"] == 5
+    assert title_state.attributes["disc"] == "1/2"

@@ -109,8 +109,24 @@ def _current_title(data: dict) -> StateType:
 
 
 def _current_title_attrs(data: dict) -> dict[str, StateType]:
-    title_id = (data.get("title") or {}).get("titleid")
-    return {"title_id": normalize_title_id(title_id)}
+    title = data.get("title") or {}
+    disc = title.get("disc") or {}
+    attrs: dict[str, StateType] = {"title_id": normalize_title_id(title.get("titleid"))}
+    if title.get("mediaid"):
+        attrs["media_id"] = title.get("mediaid")
+    if title.get("tuver") is not None:
+        attrs["title_update_version"] = title.get("tuver")
+    if disc.get("count"):
+        attrs["disc"] = f"{disc.get('current', 0)}/{disc.get('count')}"
+    return attrs
+
+
+def _resolution(data: dict) -> StateType:
+    res = (data.get("title") or {}).get("resolution") or {}
+    width, height = res.get("width"), res.get("height")
+    if not width or not height:
+        return None
+    return f"{width}x{height}"
 
 
 def _player_slot(data: dict) -> int:
@@ -364,6 +380,12 @@ SENSORS: tuple[XboxSensorDescription, ...] = (
         icon="mdi:star-four-points",
         state_class=SensorStateClass.MEASUREMENT,
         value_fn=_achievement_gamerscore,
+    ),
+    XboxSensorDescription(
+        key="video_resolution",
+        translation_key="video_resolution",
+        icon="mdi:monitor-screenshot",
+        value_fn=_resolution,
     ),
 )
 
