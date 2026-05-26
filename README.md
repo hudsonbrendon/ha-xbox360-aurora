@@ -24,7 +24,9 @@ launch-a-game, reboot, and shutdown.
 
 ## Features
 
-- 🎮 **Now playing** — Title ID of the running game or app.
+- 🎮 **Now playing** — the running game's name (resolved from a bundled Title ID
+  database of 1700+ titles); the raw `title_id` is kept as an attribute. Unknown
+  titles fall back to the hex ID.
 - 🌡️ **Temperatures** — CPU, GPU, and case sensors (°C).
 - 🧠 **Free RAM** — available memory in MB.
 - 📡 **Online status** — a connectivity binary sensor that flips off when the console
@@ -92,7 +94,7 @@ The integration creates a single device, **Xbox 360 (`<host>`)**, with:
 
 | Entity | Type | Description |
 |---|---|---|
-| `sensor.xbox_360_<host>_current_title` | sensor | Title ID (hex) of the running game/app |
+| `sensor.xbox_360_<host>_current_title` | sensor | Running game/app name (e.g. `Call of Duty: Black Ops II`); raw ID in the `title_id` attribute. Falls back to the hex ID for unknown titles |
 | `sensor.xbox_360_<host>_cpu_temperature` | sensor | CPU temperature (°C) |
 | `sensor.xbox_360_<host>_gpu_temperature` | sensor | GPU temperature (°C) |
 | `sensor.xbox_360_<host>_case_temperature` | sensor | Case temperature (°C) |
@@ -166,6 +168,8 @@ uv run pytest -v
   Aurora team.
 - NOVA API reference:
   [jrobiche/xbox360-aurora-developer-documentation](https://github.com/jrobiche/xbox360-aurora-developer-documentation).
+- Title ID → name database derived from
+  [wiredopposite/Xbox360-Game-Database](https://github.com/wiredopposite/Xbox360-Game-Database).
 
 ## License
 

@@ -18,6 +18,7 @@ from .const import (
 )
 from .coordinator import XboxAuroraCoordinator
 from .nova import NovaClient
+from .titles import async_load_titles
 
 LAUNCH_TITLE_SCHEMA = vol.Schema(
     {
@@ -40,6 +41,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         entry.data[CONF_USERNAME],
         entry.data[CONF_PASSWORD],
     )
+    await async_load_titles(hass)
+
     coordinator = XboxAuroraCoordinator(hass, client)
     await coordinator.async_config_entry_first_refresh()
 
