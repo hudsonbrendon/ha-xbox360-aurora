@@ -104,3 +104,19 @@ async def test_get_temperature_and_memory():
             mem = await client.get_memory()
         assert temp["cpu"] == 50
         assert mem["total"] == 300
+
+
+async def test_launch_title_posts_multipart_fields():
+    async with _make_session() as session:
+        client = NovaClient(session, "1.2.3.4", 9999, "u", "p")
+        with aioresponses() as mock:
+            mock.post(f"{BASE}/authenticate", payload={"token": "t1"})
+            mock.post(f"{BASE}/title/launch", status=202)
+            # Should not raise on a 202 with no JSON body.
+            await client.launch_title("default.xex", r"Hdd1:\Games\MyGame", 0)
+        # Confirm the launch endpoint was actually called.
+        called = any(
+            method == "POST" and str(url).endswith("/title/launch")
+            for (method, url) in mock.requests
+        )
+        assert called

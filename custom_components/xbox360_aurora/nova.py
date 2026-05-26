@@ -110,3 +110,16 @@ class NovaClient:
     async def get_system(self) -> dict | None:
         """Get general console information."""
         return await self._request("GET", "/system")
+
+    async def launch_title(self, executable: str, path: str, title_type: int) -> None:
+        """Launch an executable on the console.
+
+        executable: filename, e.g. "default.xex".
+        path: Aurora drive path, e.g. r"Hdd1:\\Games\\MyGame".
+        title_type: -1 none, 0 xex, 1 xbe, 2 xex container, 3 xbe container, 4 XNA.
+        """
+        data = aiohttp.FormData()
+        data.add_field("exec", executable)
+        data.add_field("path", path)
+        data.add_field("type", str(title_type))
+        await self._request("POST", "/title/launch", data=data)
