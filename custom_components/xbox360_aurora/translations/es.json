@@ -33,7 +33,11 @@
       "used_ram": { "name": "RAM usada" },
       "total_ram": { "name": "RAM total" },
       "ram_usage": { "name": "Uso de RAM" },
-      "memory_temperature": { "name": "Temperatura de la memoria" }
+      "memory_temperature": { "name": "Temperatura de la memoria" },
+      "disc_tray": { "name": "Bandeja de disco" },
+      "video_output": { "name": "Salida de vídeo" },
+      "orientation": { "name": "Orientación" },
+      "smc_version": { "name": "Versión del SMC" }
     },
     "binary_sensor": {
       "online": { "name": "En línea" }

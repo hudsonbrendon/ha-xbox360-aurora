@@ -26,6 +26,15 @@ from .coordinator import XboxAuroraCoordinator
 from .entity import XboxAuroraEntity
 from .titles import normalize_title_id, resolve_title_name
 
+_TRAY_STATES = {0: "idle", 1: "closing", 2: "open", 3: "opening", 4: "closed", 5: "error"}
+_AVPACK = {0: "unknown", 1: "hdmi", 2: "component", 3: "vga", 4: "composite"}
+_TILT = {0: "vertical", 1: "horizontal"}
+
+
+def _enum(mapping: dict[int, str], data: dict, section: str, field: str) -> StateType:
+    raw = (data.get(section) or {}).get(field)
+    return mapping.get(raw) if raw is not None else None
+
 
 @dataclass(frozen=True, kw_only=True)
 class XboxSensorDescription(SensorEntityDescription):
@@ -146,6 +155,39 @@ SENSORS: tuple[XboxSensorDescription, ...] = (
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         state_class=SensorStateClass.MEASUREMENT,
         value_fn=lambda data: (data.get("temperature") or {}).get("memory"),
+    ),
+    XboxSensorDescription(
+        key="disc_tray",
+        translation_key="disc_tray",
+        icon="mdi:disc",
+        device_class=SensorDeviceClass.ENUM,
+        options=list(_TRAY_STATES.values()),
+        value_fn=lambda data: _enum(_TRAY_STATES, data, "smc", "traystate"),
+    ),
+    XboxSensorDescription(
+        key="video_output",
+        translation_key="video_output",
+        icon="mdi:video-input-hdmi",
+        device_class=SensorDeviceClass.ENUM,
+        options=list(_AVPACK.values()),
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda data: _enum(_AVPACK, data, "smc", "avpack"),
+    ),
+    XboxSensorDescription(
+        key="orientation",
+        translation_key="orientation",
+        icon="mdi:rotate-3d-variant",
+        device_class=SensorDeviceClass.ENUM,
+        options=list(_TILT.values()),
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda data: _enum(_TILT, data, "smc", "tiltstate"),
+    ),
+    XboxSensorDescription(
+        key="smc_version",
+        translation_key="smc_version",
+        icon="mdi:chip",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda data: (data.get("smc") or {}).get("smcversion"),
     ),
 )
 
