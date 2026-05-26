@@ -153,3 +153,30 @@ async def test_set_thread_state_posts_suspend():
             for (method, url) in mock.requests
         )
         assert called
+
+
+async def test_get_achievement_and_player():
+    async with _make_session() as session:
+        client = NovaClient(session, "1.2.3.4", 9999, "u", "p")
+        with aioresponses() as mock:
+            mock.post(f"{BASE}/authenticate", payload={"token": "t1"})
+            mock.get(f"{BASE}/achievement", payload=[{"id": 1, "cred": 20}])
+            ach = await client.get_achievement()
+            mock.get(f"{BASE}/achievement/player", payload=[{"id": 1, "player": [1, 0, 0, 0]}])
+            players = await client.get_achievement_player()
+        assert ach[0]["cred"] == 20
+        assert players[0]["player"][0] == 1
+
+
+async def test_get_profile_image_returns_bytes():
+    async with _make_session() as session:
+        client = NovaClient(session, "1.2.3.4", 9999, "u", "p")
+        with aioresponses() as mock:
+            mock.post(f"{BASE}/authenticate", payload={"token": "t1"})
+            mock.get(
+                f"{BASE}/image/profile?uuid=0",
+                body=b"BMP-BYTES",
+                content_type="image/bmp",
+            )
+            data = await client.get_profile_image(0)
+        assert data == b"BMP-BYTES"

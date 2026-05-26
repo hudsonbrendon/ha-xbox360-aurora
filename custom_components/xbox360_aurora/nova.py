@@ -141,3 +141,37 @@ class NovaClient:
         data.add_field("path", path)
         data.add_field("type", str(title_type))
         await self._request("POST", "/title/launch", data=data)
+
+    async def get_achievement(self) -> list | None:
+        """Get the running title's achievement definitions (204 if none)."""
+        return await self._request("GET", "/achievement")
+
+    async def get_achievement_player(self) -> list | None:
+        """Get per-player unlock status for the running title (204 if none)."""
+        return await self._request("GET", "/achievement/player")
+
+    async def get_profile_image(self, index: int) -> bytes | None:
+        """Download a profile's gamerpic (BMP bytes) by its ProfileEntry index."""
+        if self._token is None:
+            await self.authenticate()
+        url = f"{self._base}/image/profile"
+        for attempt in range(2):
+            headers = {"Authorization": f"Bearer {self._token}"}
+            try:
+                async with self._session.get(
+                    url, params={"uuid": str(index)}, headers=headers
+                ) as resp:
+                    if resp.status == 401:
+                        if attempt == 0:
+                            await self.authenticate()
+                            continue
+                        raise NovaAuthError("Authentication failed after retry")
+                    if resp.status == 404:
+                        return None
+                    resp.raise_for_status()
+                    return await resp.read()
+            except aiohttp.ClientResponseError as err:
+                raise NovaConnectionError(str(err)) from err
+            except aiohttp.ClientError as err:
+                raise NovaConnectionError(str(err)) from err
+        return None
