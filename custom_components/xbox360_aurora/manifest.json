@@ -1,0 +1,12 @@
+{
+  "domain": "xbox360_aurora",
+  "name": "Xbox 360 Aurora",
+  "version": "0.1.0",
+  "config_flow": true,
+  "documentation": "https://github.com/hudsonbrendon/ha-xbox360-aurora",
+  "issue_tracker": "https://github.com/hudsonbrendon/ha-xbox360-aurora/issues",
+  "codeowners": ["@hudsonbrendon"],
+  "iot_class": "local_polling",
+  "integration_type": "device",
+  "requirements": []
+}
