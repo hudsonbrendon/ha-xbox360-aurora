@@ -225,14 +225,14 @@ SENSORS: tuple[XboxSensorDescription, ...] = (
         translation_key="motherboard",
         icon="mdi:expansion-card",
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda data: (data.get("system") or {}).get("console", {}).get("motherboard"),
+        value_fn=lambda data: ((data.get("system") or {}).get("console") or {}).get("motherboard"),
     ),
     XboxSensorDescription(
         key="console_type",
         translation_key="console_type",
         icon="mdi:identifier",
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda data: (data.get("system") or {}).get("console", {}).get("type"),
+        value_fn=lambda data: ((data.get("system") or {}).get("console") or {}).get("type"),
     ),
     XboxSensorDescription(
         key="dashboard_version",
@@ -283,7 +283,7 @@ SENSORS: tuple[XboxSensorDescription, ...] = (
         native_unit_of_measurement=UnitOfDataRate.BYTES_PER_SECOND,
         state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=0,
-        value_fn=lambda data: (data.get("bandwidth") or {}).get("rate", {}).get("downstream"),
+        value_fn=lambda data: ((data.get("bandwidth") or {}).get("rate") or {}).get("downstream"),
     ),
     XboxSensorDescription(
         key="network_upload",
@@ -292,7 +292,7 @@ SENSORS: tuple[XboxSensorDescription, ...] = (
         native_unit_of_measurement=UnitOfDataRate.BYTES_PER_SECOND,
         state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=0,
-        value_fn=lambda data: (data.get("bandwidth") or {}).get("rate", {}).get("upstream"),
+        value_fn=lambda data: ((data.get("bandwidth") or {}).get("rate") or {}).get("upstream"),
     ),
     XboxSensorDescription(
         key="network_total_download",
@@ -301,7 +301,7 @@ SENSORS: tuple[XboxSensorDescription, ...] = (
         native_unit_of_measurement=UnitOfInformation.BYTES,
         state_class=SensorStateClass.TOTAL_INCREASING,
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda data: (data.get("bandwidth") or {}).get("bytes", {}).get("downstream"),
+        value_fn=lambda data: ((data.get("bandwidth") or {}).get("bytes") or {}).get("downstream"),
     ),
     XboxSensorDescription(
         key="network_total_upload",
@@ -310,7 +310,7 @@ SENSORS: tuple[XboxSensorDescription, ...] = (
         native_unit_of_measurement=UnitOfInformation.BYTES,
         state_class=SensorStateClass.TOTAL_INCREASING,
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda data: (data.get("bandwidth") or {}).get("bytes", {}).get("upstream"),
+        value_fn=lambda data: ((data.get("bandwidth") or {}).get("bytes") or {}).get("upstream"),
     ),
 )
 
