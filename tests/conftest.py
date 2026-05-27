@@ -54,6 +54,13 @@ def mock_nova():
         "get_systemlink_bandwidth": AsyncMock(return_value={}),
         "get_achievement": AsyncMock(return_value=[]),
         "get_achievement_player": AsyncMock(return_value=[]),
+        "list_screencaptures": AsyncMock(return_value=[]),
+        "get_update_notification": AsyncMock(return_value={}),
+        "get_plugin": AsyncMock(return_value={}),
+        "get_dashlaunch": AsyncMock(return_value={}),
+        "take_screencapture": AsyncMock(return_value={}),
+        "get_screencapture_image": AsyncMock(return_value=None),
+        "delete_screencapture": AsyncMock(return_value=None),
     }
     with patch.multiple(
         "custom_components.xbox360_aurora.nova.NovaClient", create=True, **defaults
