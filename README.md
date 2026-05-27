@@ -16,8 +16,8 @@
 Monitor and control a jailbroken (**RGH/JTAG**) Xbox 360 running the
 [**Aurora**](https://consolemods.org/wiki/Xbox_360:Aurora) dashboard with the
 **NOVA** plugin — the running title, temperatures, RAM, online status, profile,
-network bandwidth, hardware diagnostics, plus launch-a-game, pause/resume,
-reboot, shutdown, and restart-Aurora.
+network bandwidth, hardware diagnostics, screenshots, automation events, plus
+launch-a-game, pause/resume, reboot, shutdown, and restart-Aurora.
 
 > Talks to the NOVA REST API (port `9999`, JWT auth) for monitoring and launching,
 > and to Aurora's FTP server (port `21`, `SITE` commands) for reboot/shutdown/restart.
@@ -49,6 +49,16 @@ reboot, shutdown, and restart-Aurora.
 - 📺 **Video resolution** — current video output resolution (e.g. `1280x720`).
 - 🔁 **Reboot / Shutdown / Restart Aurora** — buttons that issue Aurora FTP `SITE`
   commands.
+- 📸 **Screenshots** — a "Take screenshot" button triggers a screen capture via NOVA;
+  a "latest screenshot" image entity shows the most recent capture; a screenshot count
+  sensor reports how many captures exist for the running title; a "Delete screenshot"
+  button removes the most recent capture.
+- 🔔 **Automation events** — the `xbox360_aurora_event` event is fired on game launch
+  (`title_launched`, includes `title_id` and `title_name`), screenshot taken
+  (`screenshot_taken`), and profile sign-in change (`profile_changed`), enabling
+  native HA automations without polling.
+- 🔬 **Diagnostic sensors** — kernel version, NOVA plugin version, and per-session
+  counters for titles launched and screenshots taken.
 - 🏠 **Local polling** — everything runs on your LAN; no cloud, no account.
 
 > ⚡ **Power-ON is not supported.** RGH/JTAG Xbox 360 consoles do not respond to
@@ -163,6 +173,14 @@ The integration creates a single device, **Xbox 360 (`<host>`)**, with:
 | `button.xbox_360_<host>_reboot` | button | Power-cycle the console (FTP `SITE REBOOT`) |
 | `button.xbox_360_<host>_shutdown` | button | Power off the console (FTP `SITE SHUTDOWN`) |
 | `button.xbox_360_<host>_restart_aurora` | button | Restart the Aurora dashboard (FTP `SITE RESTART`) |
+| `image.xbox_360_<host>_screenshot` | image | Most recent screen capture of the running title |
+| `button.xbox_360_<host>_take_screenshot` | button | Trigger a screen capture (NOVA) |
+| `button.xbox_360_<host>_delete_screenshot` | button | Delete the most recent screen capture |
+| `sensor.xbox_360_<host>_screenshot_count` | sensor | Number of stored screen captures for the running title |
+| `sensor.xbox_360_<host>_kernel_version` | sensor | Console kernel version (diagnostic) |
+| `sensor.xbox_360_<host>_nova_version` | sensor | NOVA plugin version (diagnostic) |
+| `sensor.xbox_360_<host>_titles_launched_session` | sensor | Titles launched this session (diagnostic) |
+| `sensor.xbox_360_<host>_screenshots_session` | sensor | Screenshots taken this session (diagnostic) |
 
 When the console is off or unreachable, the sensors become `unavailable` and the
 `online` binary sensor reports `off`.
@@ -187,6 +205,32 @@ data:
   exec: default.xex
   path: 'Hdd1:\Games\MyGame'
   type: 0
+```
+
+## Events
+
+The integration fires the `xbox360_aurora_event` event on the Home Assistant event bus
+for key console activity. All events carry a `type` field:
+
+| `type` value | When fired | Extra data |
+|---|---|---|
+| `title_launched` | A game or app starts | `title_id` (hex), `title_name` (resolved string) |
+| `screenshot_taken` | A screenshot is captured | — |
+| `profile_changed` | The signed-in profile changes | — |
+
+**Automation example — dim the lights when a game launches:**
+
+```yaml
+automation:
+  - alias: Dim lights when an Xbox game launches
+    trigger:
+      - platform: event
+        event_type: xbox360_aurora_event
+        event_data:
+          type: title_launched
+    action:
+      - service: light.turn_off
+        target: { entity_id: light.living_room }
 ```
 
 ## Automation example
