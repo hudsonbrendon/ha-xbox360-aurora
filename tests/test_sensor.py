@@ -225,3 +225,25 @@ async def test_title_extras(hass: HomeAssistant, mock_nova):
     assert title_state.attributes["media_id"] == "1CF74090"
     assert title_state.attributes["title_update_version"] == 5
     assert title_state.attributes["disc"] == "1/2"
+
+
+async def test_session_and_version_sensors(hass: HomeAssistant, mock_nova):
+    mock_nova["list_screencaptures"].return_value = [{"filename": "a"}, {"filename": "b"}]
+    mock_nova["get_update_notification"].return_value = {"title": 3, "screencapture": 2, "profiles": 1}
+    mock_nova["get_dashlaunch"].return_value = {"version": {"kernel": 17559}}
+    mock_nova["get_plugin"].return_value = {"number": {"major": 0, "minor": 7, "build": 2}}
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        data=ENTRY_DATA,
+        unique_id="1.2.3.4:9999",
+        title="Xbox 360 (1.2.3.4)",
+    )
+    entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+
+    assert hass.states.get("sensor.xbox_360_1_2_3_4_screenshot_count").state == "2"
+    assert hass.states.get("sensor.xbox_360_1_2_3_4_kernel_version").state == "17559"
+    assert hass.states.get("sensor.xbox_360_1_2_3_4_nova_version").state == "0.7.2"
+    assert hass.states.get("sensor.xbox_360_1_2_3_4_titles_launched_session").state == "3"
+    assert hass.states.get("sensor.xbox_360_1_2_3_4_screenshots_session").state == "2"

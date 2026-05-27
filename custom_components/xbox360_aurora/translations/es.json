@@ -67,7 +67,12 @@
       "achievements_unlocked": { "name": "Logros desbloqueados" },
       "achievements_total": { "name": "Logros totales" },
       "achievement_gamerscore": { "name": "Gamerscore de logros" },
-      "video_resolution": { "name": "Resolución de vídeo" }
+      "video_resolution": { "name": "Resolución de vídeo" },
+      "screenshot_count": { "name": "Capturas totales" },
+      "kernel_version": { "name": "Versión del kernel" },
+      "nova_version": { "name": "Versión de NOVA" },
+      "titles_launched_session": { "name": "Títulos lanzados (sesión)" },
+      "screenshots_session": { "name": "Capturas (sesión)" }
     },
     "binary_sensor": {
       "online": { "name": "En línea" }

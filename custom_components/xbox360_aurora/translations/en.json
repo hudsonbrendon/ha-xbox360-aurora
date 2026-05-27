@@ -67,7 +67,12 @@
       "achievements_unlocked": { "name": "Achievements unlocked" },
       "achievements_total": { "name": "Achievements total" },
       "achievement_gamerscore": { "name": "Achievement gamerscore" },
-      "video_resolution": { "name": "Video resolution" }
+      "video_resolution": { "name": "Video resolution" },
+      "screenshot_count": { "name": "Screenshot count" },
+      "kernel_version": { "name": "Kernel version" },
+      "nova_version": { "name": "NOVA version" },
+      "titles_launched_session": { "name": "Titles launched (session)" },
+      "screenshots_session": { "name": "Screenshots (session)" }
     },
     "binary_sensor": {
       "online": { "name": "Online" }

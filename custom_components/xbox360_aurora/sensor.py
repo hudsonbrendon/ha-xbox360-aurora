@@ -121,6 +121,21 @@ def _current_title_attrs(data: dict) -> dict[str, StateType]:
     return attrs
 
 
+def _screenshot_count(data: dict) -> StateType:
+    return len(data.get("screencaptures") or [])
+
+
+def _kernel_version(data: dict) -> StateType:
+    return ((data.get("dashlaunch") or {}).get("version") or {}).get("kernel")
+
+
+def _nova_version(data: dict) -> StateType:
+    number = (data.get("plugin") or {}).get("number") or {}
+    if not number:
+        return None
+    return f"{number.get('major', 0)}.{number.get('minor', 0)}.{number.get('build', 0)}"
+
+
 def _resolution(data: dict) -> StateType:
     res = (data.get("title") or {}).get("resolution") or {}
     width, height = res.get("width"), res.get("height")
@@ -386,6 +401,43 @@ SENSORS: tuple[XboxSensorDescription, ...] = (
         translation_key="video_resolution",
         icon="mdi:monitor-screenshot",
         value_fn=_resolution,
+    ),
+    XboxSensorDescription(
+        key="screenshot_count",
+        translation_key="screenshot_count",
+        icon="mdi:image-multiple",
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=_screenshot_count,
+    ),
+    XboxSensorDescription(
+        key="kernel_version",
+        translation_key="kernel_version",
+        icon="mdi:chip",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=_kernel_version,
+    ),
+    XboxSensorDescription(
+        key="nova_version",
+        translation_key="nova_version",
+        icon="mdi:package-variant",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=_nova_version,
+    ),
+    XboxSensorDescription(
+        key="titles_launched_session",
+        translation_key="titles_launched_session",
+        icon="mdi:rocket-launch",
+        state_class=SensorStateClass.TOTAL_INCREASING,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda data: (data.get("notification") or {}).get("title"),
+    ),
+    XboxSensorDescription(
+        key="screenshots_session",
+        translation_key="screenshots_session",
+        icon="mdi:camera-burst",
+        state_class=SensorStateClass.TOTAL_INCREASING,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda data: (data.get("notification") or {}).get("screencapture"),
     ),
 )
 
