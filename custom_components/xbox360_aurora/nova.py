@@ -175,3 +175,72 @@ class NovaClient:
             except aiohttp.ClientError as err:
                 raise NovaConnectionError(str(err)) from err
         return None
+
+    async def take_screencapture(self) -> dict | None:
+        """Trigger a screen capture of the running title; returns its metadata."""
+        return await self._request("GET", "/screencapture/meta")
+
+    async def list_screencaptures(self) -> list | None:
+        """List stored screen captures for the running title (204 if none)."""
+        return await self._request("GET", "/screencapture/meta/list")
+
+    async def get_update_notification(self) -> dict | None:
+        """Get session activity counters (titles, profiles, screencaptures)."""
+        return await self._request("GET", "/update/notification")
+
+    async def get_plugin(self) -> dict | None:
+        """Get NOVA plugin info (version, features, paths)."""
+        return await self._request("GET", "/plugin")
+
+    async def get_dashlaunch(self) -> dict | None:
+        """Get DashLaunch settings and version (including kernel)."""
+        return await self._request("GET", "/dashlaunch")
+
+    async def get_screencapture_image(self, filename: str) -> bytes | None:
+        """Download a stored screen capture (BMP bytes) by its filename."""
+        if self._token is None:
+            await self.authenticate()
+        url = f"{self._base}/image/screencapture"
+        for attempt in range(2):
+            headers = {"Authorization": f"Bearer {self._token}"}
+            try:
+                async with self._session.get(
+                    url, params={"uuid": filename}, headers=headers
+                ) as resp:
+                    if resp.status == 401:
+                        if attempt == 0:
+                            await self.authenticate()
+                            continue
+                        raise NovaAuthError("Authentication failed after retry")
+                    if resp.status == 404:
+                        return None
+                    resp.raise_for_status()
+                    return await resp.read()
+            except aiohttp.ClientResponseError as err:
+                raise NovaConnectionError(str(err)) from err
+            except aiohttp.ClientError as err:
+                raise NovaConnectionError(str(err)) from err
+        return None
+
+    async def delete_screencapture(self, filename: str) -> None:
+        """Delete a stored screen capture by filename."""
+        if self._token is None:
+            await self.authenticate()
+        url = f"{self._base}/screencapture"
+        for attempt in range(2):
+            headers = {"Authorization": f"Bearer {self._token}"}
+            try:
+                async with self._session.delete(
+                    url, params={"uuid": filename}, headers=headers
+                ) as resp:
+                    if resp.status == 401:
+                        if attempt == 0:
+                            await self.authenticate()
+                            continue
+                        raise NovaAuthError("Authentication failed after retry")
+                    resp.raise_for_status()
+                    return
+            except aiohttp.ClientResponseError as err:
+                raise NovaConnectionError(str(err)) from err
+            except aiohttp.ClientError as err:
+                raise NovaConnectionError(str(err)) from err

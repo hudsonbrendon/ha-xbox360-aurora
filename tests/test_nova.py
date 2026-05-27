@@ -180,3 +180,98 @@ async def test_get_profile_image_returns_bytes():
             )
             data = await client.get_profile_image(0)
         assert data == b"BMP-BYTES"
+
+
+async def test_take_screencapture_returns_meta():
+    async with _make_session() as session:
+        client = NovaClient(session, "1.2.3.4", 9999, "u", "p")
+        with aioresponses() as mock:
+            mock.post(f"{BASE}/authenticate", payload={"token": "t1"})
+            mock.get(
+                f"{BASE}/screencapture/meta",
+                payload={"filename": "415608C320260527", "titleid": "415608C3"},
+            )
+            result = await client.take_screencapture()
+        assert result == {"filename": "415608C320260527", "titleid": "415608C3"}
+
+
+async def test_list_screencaptures_returns_list():
+    async with _make_session() as session:
+        client = NovaClient(session, "1.2.3.4", 9999, "u", "p")
+        with aioresponses() as mock:
+            mock.post(f"{BASE}/authenticate", payload={"token": "t1"})
+            mock.get(
+                f"{BASE}/screencapture/meta/list",
+                payload=[{"filename": "x", "timestamp": "20260527"}],
+            )
+            result = await client.list_screencaptures()
+        assert result == [{"filename": "x", "timestamp": "20260527"}]
+
+
+async def test_get_plugin_returns_json():
+    async with _make_session() as session:
+        client = NovaClient(session, "1.2.3.4", 9999, "u", "p")
+        with aioresponses() as mock:
+            mock.post(f"{BASE}/authenticate", payload={"token": "t1"})
+            mock.get(
+                f"{BASE}/plugin",
+                payload={"version": "0.7b", "features": ["screencapture"]},
+            )
+            result = await client.get_plugin()
+        assert result["version"] == "0.7b"
+        assert "screencapture" in result["features"]
+
+
+async def test_get_dashlaunch_returns_json():
+    async with _make_session() as session:
+        client = NovaClient(session, "1.2.3.4", 9999, "u", "p")
+        with aioresponses() as mock:
+            mock.post(f"{BASE}/authenticate", payload={"token": "t1"})
+            mock.get(
+                f"{BASE}/dashlaunch",
+                payload={"version": "3.21", "kernel": "2.0.17559.0"},
+            )
+            result = await client.get_dashlaunch()
+        assert result["version"] == "3.21"
+        assert result["kernel"] == "2.0.17559.0"
+
+
+async def test_get_update_notification_returns_counters():
+    async with _make_session() as session:
+        client = NovaClient(session, "1.2.3.4", 9999, "u", "p")
+        with aioresponses() as mock:
+            mock.post(f"{BASE}/authenticate", payload={"token": "t1"})
+            mock.get(
+                f"{BASE}/update/notification",
+                payload={"titles": 5, "profiles": 2, "screencaptures": 3},
+            )
+            result = await client.get_update_notification()
+        assert result == {"titles": 5, "profiles": 2, "screencaptures": 3}
+
+
+async def test_get_screencapture_image_returns_bytes():
+    async with _make_session() as session:
+        client = NovaClient(session, "1.2.3.4", 9999, "u", "p")
+        with aioresponses() as mock:
+            mock.post(f"{BASE}/authenticate", payload={"token": "t1"})
+            mock.get(
+                f"{BASE}/image/screencapture?uuid=fname",
+                body=b"BMP-SCREEN-BYTES",
+                content_type="image/bmp",
+            )
+            data = await client.get_screencapture_image("fname")
+        assert data == b"BMP-SCREEN-BYTES"
+
+
+async def test_delete_screencapture_issues_delete():
+    async with _make_session() as session:
+        client = NovaClient(session, "1.2.3.4", 9999, "u", "p")
+        with aioresponses() as mock:
+            mock.post(f"{BASE}/authenticate", payload={"token": "t1"})
+            mock.delete(f"{BASE}/screencapture?uuid=fname", status=204)
+            await client.delete_screencapture("fname")
+        called = any(
+            method == "DELETE" and "/screencapture" in str(url)
+            for (method, url) in mock.requests
+        )
+        assert called
