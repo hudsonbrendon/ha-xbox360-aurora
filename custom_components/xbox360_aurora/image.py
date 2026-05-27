@@ -31,9 +31,12 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up the gamerpic image entity."""
+    """Set up the gamerpic and screenshot image entities."""
     coordinator: XboxAuroraCoordinator = hass.data[DOMAIN][entry.entry_id]
-    async_add_entities([XboxAuroraGamerpic(hass, coordinator, entry)])
+    async_add_entities([
+        XboxAuroraGamerpic(hass, coordinator, entry),
+        XboxAuroraScreenshot(hass, coordinator, entry),
+    ])
 
 
 class XboxAuroraGamerpic(CoordinatorEntity[XboxAuroraCoordinator], ImageEntity):
@@ -77,6 +80,56 @@ class XboxAuroraGamerpic(CoordinatorEntity[XboxAuroraCoordinator], ImageEntity):
             return None
         try:
             raw = await self.coordinator.client.get_profile_image(index)
+        except NovaError:
+            return None
+        if not raw:
+            return None
+        return await self.hass.async_add_executor_job(_bmp_to_png, raw)
+
+
+class XboxAuroraScreenshot(CoordinatorEntity[XboxAuroraCoordinator], ImageEntity):
+    """The most recent screen capture of the running title."""
+
+    _attr_has_entity_name = True
+    _attr_translation_key = "screenshot"
+    _attr_content_type = "image/png"
+
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        coordinator: XboxAuroraCoordinator,
+        entry: ConfigEntry,
+    ) -> None:
+        CoordinatorEntity.__init__(self, coordinator)
+        ImageEntity.__init__(self, hass, verify_ssl=False)
+        self._entry = entry
+        self._attr_unique_id = f"{entry.entry_id}_screenshot"
+        self._attr_device_info = build_device_info(coordinator, entry)
+        self._cached_filename: str | None = None
+
+    def _newest(self):
+        caps = (self.coordinator.data or {}).get("screencaptures") or []
+        if not caps:
+            return None
+        return max(caps, key=lambda c: c.get("timestamp", ""))
+
+    def _handle_coordinator_update(self) -> None:
+        newest = self._newest()
+        filename = newest.get("filename") if newest else None
+        if filename != self._cached_filename:
+            self._cached_filename = filename
+            self._attr_image_last_updated = dt_util.utcnow()
+        super()._handle_coordinator_update()
+
+    async def async_image(self) -> bytes | None:
+        newest = self._newest()
+        if not newest:
+            return None
+        filename = newest.get("filename")
+        if not filename:
+            return None
+        try:
+            raw = await self.coordinator.client.get_screencapture_image(filename)
         except NovaError:
             return None
         if not raw:

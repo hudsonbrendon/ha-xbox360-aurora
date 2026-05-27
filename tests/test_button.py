@@ -81,3 +81,26 @@ async def test_restart_aurora_button_sends_site_restart(hass: HomeAssistant, moc
             blocking=True,
         )
     mock_site.assert_called_once_with("1.2.3.4", 21, "xboxftp", "xboxftp", "RESTART")
+
+
+async def test_take_screenshot_button(hass: HomeAssistant, mock_nova):
+    await _setup(hass, mock_nova)
+    await hass.services.async_call(
+        "button",
+        "press",
+        {"entity_id": "button.xbox_360_1_2_3_4_take_screenshot"},
+        blocking=True,
+    )
+    mock_nova["take_screencapture"].assert_awaited()
+
+
+async def test_delete_screenshot_button(hass: HomeAssistant, mock_nova):
+    mock_nova["list_screencaptures"].return_value = [{"filename": "x", "timestamp": "1"}]
+    await _setup(hass, mock_nova)
+    await hass.services.async_call(
+        "button",
+        "press",
+        {"entity_id": "button.xbox_360_1_2_3_4_delete_screenshot"},
+        blocking=True,
+    )
+    mock_nova["delete_screencapture"].assert_awaited_once_with("x")

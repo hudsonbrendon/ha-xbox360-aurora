@@ -56,3 +56,30 @@ async def test_gamerpic_serves_png(hass: HomeAssistant, mock_nova):
         )
         png = await ent.async_image()
     assert png is not None and png[:4] == b"\x89PNG"
+
+
+async def test_screenshot_image_serves_png(hass: HomeAssistant, mock_nova):
+    mock_nova["list_screencaptures"].return_value = [
+        {"filename": "f1", "timestamp": "20260527000001"},
+        {"filename": "f2", "timestamp": "20260527000002"},
+    ]
+    entry = MockConfigEntry(
+        domain=DOMAIN, data=ENTRY_DATA, unique_id="1.2.3.4:9999", title="Xbox 360 (1.2.3.4)"
+    )
+    entry.add_to_hass(hass)
+    with patch(
+        "custom_components.xbox360_aurora.image.NovaClient.get_screencapture_image",
+        new=AsyncMock(return_value=_bmp_bytes()),
+    ):
+        assert await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+
+        state = hass.states.get("image.xbox_360_1_2_3_4_screenshot")
+        assert state is not None
+
+        ent = next(
+            e for e in hass.data["entity_components"]["image"].entities
+            if e.unique_id == f"{entry.entry_id}_screenshot"
+        )
+        png = await ent.async_image()
+    assert png is not None and png[:4] == b"\x89PNG"

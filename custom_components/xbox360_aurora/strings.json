@@ -80,10 +80,13 @@
     "button": {
       "reboot": { "name": "Reboot" },
       "shutdown": { "name": "Shutdown" },
-      "restart_aurora": { "name": "Restart Aurora" }
+      "restart_aurora": { "name": "Restart Aurora" },
+      "take_screenshot": { "name": "Take screenshot" },
+      "delete_screenshot": { "name": "Delete screenshot" }
     },
     "image": {
-      "gamerpic": { "name": "Gamerpic" }
+      "gamerpic": { "name": "Gamerpic" },
+      "screenshot": { "name": "Screenshot" }
     },
     "switch": {
       "game_paused": { "name": "Game paused" }
