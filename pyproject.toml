@@ -14,6 +14,7 @@ dev = [
     "pytest-asyncio",
     "pytest-homeassistant-custom-component",
     "aioresponses",
+    "xbox360-nova",
 ]
 
 [tool.uv]
