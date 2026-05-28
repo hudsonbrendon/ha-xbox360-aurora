@@ -12,7 +12,7 @@ from custom_components.xbox360_aurora.const import (
     CONF_SCAN_INTERVAL,
     DOMAIN,
 )
-from custom_components.xbox360_aurora.nova import NovaAuthError, NovaConnectionError
+from xbox360_nova import NovaAuthError, NovaConnectionError
 
 USER_INPUT = {
     CONF_HOST: "1.2.3.4",

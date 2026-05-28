@@ -63,6 +63,6 @@ def mock_nova():
         "delete_screencapture": AsyncMock(return_value=None),
     }
     with patch.multiple(
-        "custom_components.xbox360_aurora.nova.NovaClient", create=True, **defaults
+        "xbox360_nova.NovaClient", create=True, **defaults
     ):
         yield defaults

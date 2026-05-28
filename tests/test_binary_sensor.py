@@ -9,7 +9,7 @@ from custom_components.xbox360_aurora.const import (
     CONF_FTP_USERNAME,
     DOMAIN,
 )
-from custom_components.xbox360_aurora.nova import NovaConnectionError
+from xbox360_nova import NovaConnectionError
 
 ENTRY_DATA = {
     CONF_HOST: "1.2.3.4",
