@@ -13,6 +13,8 @@
 [![Release](https://img.shields.io/github/v/release/hudsonbrendon/ha-xbox360-aurora)](https://github.com/hudsonbrendon/ha-xbox360-aurora/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
+Built on the [`xbox360-nova`](https://pypi.org/project/xbox360-nova/) Python library.
+
 Monitor and control a jailbroken (**RGH/JTAG**) Xbox 360 running the
 [**Aurora**](https://consolemods.org/wiki/Xbox_360:Aurora) dashboard with the
 **NOVA** plugin — the running title, temperatures, RAM, online status, profile,
@@ -279,6 +281,10 @@ uv run pytest -v
   [jrobiche/xbox360-aurora-developer-documentation](https://github.com/jrobiche/xbox360-aurora-developer-documentation).
 - Title ID → name database derived from
   [wiredopposite/Xbox360-Game-Database](https://github.com/wiredopposite/Xbox360-Game-Database).
+- Xbox 360 communication (NOVA REST + Aurora FTP + title database) is provided by the
+  [**`xbox360-nova`**](https://github.com/hudsonbrendon/xbox360-nova)
+  ([PyPI](https://pypi.org/project/xbox360-nova/)) library, pulled in automatically via
+  `manifest.json` `requirements`.
 
 ## License
 
