@@ -10,8 +10,8 @@ from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .const import CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL, DOMAIN, EVENT_NOTIFICATION
-from .nova import NovaAuthError, NovaClient, NovaError
-from .titles import normalize_title_id, resolve_title_name
+from xbox360_nova import NovaAuthError, NovaClient, NovaError
+from xbox360_nova import normalize_title_id, resolve_title_name
 
 _LOGGER = logging.getLogger(__name__)
 

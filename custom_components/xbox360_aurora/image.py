@@ -13,7 +13,7 @@ from homeassistant.util import dt as dt_util
 from .const import DOMAIN
 from .coordinator import XboxAuroraCoordinator
 from .entity import build_device_info
-from .nova import NovaClient, NovaError  # noqa: F401  (NovaClient referenced for patching)
+from xbox360_nova import NovaClient, NovaError  # noqa: F401  (NovaClient referenced for patching)
 
 
 def _bmp_to_png(data: bytes) -> bytes:

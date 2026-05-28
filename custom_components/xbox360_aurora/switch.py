@@ -11,7 +11,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from .const import DOMAIN
 from .coordinator import XboxAuroraCoordinator
 from .entity import XboxAuroraEntity
-from .nova import NovaClient  # noqa: F401  (referenced by tests for patching)
+from xbox360_nova import NovaClient  # noqa: F401  (referenced by tests for patching)
 
 
 async def async_setup_entry(

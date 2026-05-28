@@ -24,7 +24,7 @@ from .const import (
     MAX_SCAN_INTERVAL,
     MIN_SCAN_INTERVAL,
 )
-from .nova import NovaAuthError, NovaClient, NovaError
+from xbox360_nova import NovaAuthError, NovaClient, NovaError
 
 STEP_REAUTH_SCHEMA = vol.Schema(
     {

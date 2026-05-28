@@ -16,9 +16,9 @@ from .const import (
     PLATFORMS,
     SERVICE_LAUNCH_TITLE,
 )
+from xbox360_nova import NovaClient, load_titles
+
 from .coordinator import XboxAuroraCoordinator
-from .nova import NovaClient
-from .titles import async_load_titles
 
 LAUNCH_TITLE_SCHEMA = vol.Schema(
     {
@@ -41,7 +41,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         entry.data[CONF_USERNAME],
         entry.data[CONF_PASSWORD],
     )
-    await async_load_titles(hass)
+    await hass.async_add_executor_job(load_titles)
 
     coordinator = XboxAuroraCoordinator(hass, entry, client)
     await coordinator.async_load_static()

@@ -7136,6 +7136,7 @@ dev = [
     { name = "pytest-homeassistant-custom-component", version = "0.13.236", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.13' and python_full_version < '3.13.2'" },
     { name = "pytest-homeassistant-custom-component", version = "0.13.316", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.13.2' and python_full_version < '3.14.2'" },
     { name = "pytest-homeassistant-custom-component", version = "0.13.333", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14.2'" },
+    { name = "xbox360-nova" },
 ]
 
 [package.metadata]
@@ -7147,6 +7148,22 @@ dev = [
     { name = "pytest" },
     { name = "pytest-asyncio" },
     { name = "pytest-homeassistant-custom-component" },
+    { name = "xbox360-nova" },
+]
+
+[[package]]
+name = "xbox360-nova"
+version = "0.1.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "aiohttp", version = "3.11.11", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.13'" },
+    { name = "aiohttp", version = "3.11.16", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.13' and python_full_version < '3.13.2'" },
+    { name = "aiohttp", version = "3.13.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.13.2' and python_full_version < '3.14.2'" },
+    { name = "aiohttp", version = "3.13.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14.2'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/5d/4d/39038181d6fde108cde0f636156ebefc05558f322ddf8e8b4417ac313d5d/xbox360_nova-0.1.0.tar.gz", hash = "sha256:0f4e7691069efbccd230c4febce53b48bf04808b9a1855ca5299404148b0c5b7", size = 28631, upload-time = "2026-05-28T03:14:29.389Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d0/c1/277f72a9a28d38224c3a60f2d14d0bc0cedf3ea18f5d5f4a8d485b94dc57/xbox360_nova-0.1.0-py3-none-any.whl", hash = "sha256:3d1a4f1d94b6cebdac4c2379691558f6f2dbeb8b2daeae3bda47b559b75527dc", size = 27291, upload-time = "2026-05-28T03:14:28.066Z" },
 ]
 
 [[package]]

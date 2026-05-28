@@ -8,18 +8,16 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
+from xbox360_nova import FTP_CMD_REBOOT, FTP_CMD_RESTART, FTP_CMD_SHUTDOWN, site_command
+
 from .const import (
     CONF_FTP_PASSWORD,
     CONF_FTP_PORT,
     CONF_FTP_USERNAME,
     DOMAIN,
-    FTP_CMD_REBOOT,
-    FTP_CMD_RESTART,
-    FTP_CMD_SHUTDOWN,
 )
 from .coordinator import XboxAuroraCoordinator
 from .entity import XboxAuroraEntity
-from .ftp import site_command
 
 
 async def async_setup_entry(
