@@ -73,14 +73,14 @@ async def test_connectivity_off_when_first_poll_fails(hass: HomeAssistant, mock_
     assert state.state == "off"
 
 
-async def test_connectivity_stays_on_with_last_known_state(
+async def test_connectivity_off_but_data_retained_when_console_goes_offline(
     hass: HomeAssistant, mock_nova
 ):
-    """After a successful poll, a later connection failure keeps last-known data.
+    """After a successful poll, a later connection failure reports off but keeps data.
 
-    The coordinator returns the cached payload instead of failing, so
-    ``last_update_success`` remains ``True`` and the previously-fetched sensor
-    values are retained rather than going unavailable.
+    The coordinator keeps the cached payload so data entities retain their
+    last-known values, but ``device_online`` flips to ``False`` so the
+    connectivity sensor correctly reports the console as offline.
     """
     mock_nova["get_title"].return_value = {"titleid": "1"}
     mock_nova["get_temperature"].return_value = {
@@ -100,6 +100,7 @@ async def test_connectivity_stays_on_with_last_known_state(
 
     coordinator = hass.data[DOMAIN][entry.entry_id]
     assert coordinator.data is not None
+    assert coordinator.device_online is True
     cached = coordinator.data
 
     # Console goes offline on the next refresh.
@@ -113,6 +114,11 @@ async def test_connectivity_stays_on_with_last_known_state(
     await coordinator.async_refresh()
     await hass.async_block_till_done()
 
-    # Last-known data is retained; the update is treated as successful.
-    assert coordinator.last_update_success is True
+    # The console is reported offline...
+    assert coordinator.device_online is False
+    state = hass.states.get("binary_sensor.xbox_360_1_2_3_4_online")
+    assert state is not None
+    assert state.state == "off"
+
+    # ...but data entities keep their last-known values.
     assert coordinator.data == cached

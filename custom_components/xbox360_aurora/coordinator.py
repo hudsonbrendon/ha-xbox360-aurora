@@ -31,6 +31,7 @@ class XboxAuroraCoordinator(DataUpdateCoordinator[dict]):
         )
         self.entry = entry
         self.client = client
+        self.device_online: bool = False
         self.system: dict = {}
         self.plugin: dict = {}
         self.dashlaunch: dict = {}
@@ -47,7 +48,15 @@ class XboxAuroraCoordinator(DataUpdateCoordinator[dict]):
             pass
 
     async def _async_update_data(self) -> dict:
-        """Fetch the latest data. UpdateFailed marks entities unavailable."""
+        """Fetch the latest data.
+
+        When the console is reachable, fresh data is returned and
+        ``device_online`` is set ``True``. When it is unreachable but we already
+        have a cached payload, that last-known data is returned unchanged (and
+        ``device_online`` is set ``False``) so data entities keep their values
+        instead of going unavailable. Only a first-ever failure raises
+        ``UpdateFailed``.
+        """
         try:
             title = await self.client.get_title()
             temperature = await self.client.get_temperature()
@@ -60,12 +69,17 @@ class XboxAuroraCoordinator(DataUpdateCoordinator[dict]):
             screencaptures = await self.client.list_screencaptures()
             notification = await self.client.get_update_notification()
         except NovaAuthError as err:
+            self.device_online = False
             raise ConfigEntryAuthFailed("NOVA authentication failed") from err
         except NovaError as err:
+            self.device_online = False
             if self.data is not None:
                 _LOGGER.warning("Xbox 360 offline (%s); keeping last-known state", err)
+                # Intentionally bypasses the notification-event block below so
+                # events don't fire on stale, last-known data.
                 return self.data
             raise UpdateFailed(f"Error communicating with NOVA: {err}") from err
+        self.device_online = True
         self._fire_notification_events(notification or {}, title or {})
         return {
             "title": title or {},
