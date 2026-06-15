@@ -62,6 +62,9 @@ class XboxAuroraCoordinator(DataUpdateCoordinator[dict]):
         except NovaAuthError as err:
             raise ConfigEntryAuthFailed("NOVA authentication failed") from err
         except NovaError as err:
+            if self.data is not None:
+                _LOGGER.warning("Xbox 360 offline (%s); keeping last-known state", err)
+                return self.data
             raise UpdateFailed(f"Error communicating with NOVA: {err}") from err
         self._fire_notification_events(notification or {}, title or {})
         return {

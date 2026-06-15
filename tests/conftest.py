@@ -13,6 +13,23 @@ def auto_enable_custom_integrations(enable_custom_integrations):
 
 
 @pytest.fixture(autouse=True)
+def _instant_request_refresh():
+    """Make the coordinator's background refresh fire immediately in tests.
+
+    Setup now calls ``coordinator.async_request_refresh()`` (non-blocking) so
+    HA finishes setup even when the console is off.  That request is debounced
+    with a 10s cooldown, which never elapses inside ``async_block_till_done``.
+    Dropping the cooldown to 0 lets the first refresh complete during setup so
+    entity-state assertions stay deterministic.
+    """
+    with patch(
+        "homeassistant.helpers.update_coordinator.REQUEST_REFRESH_DEFAULT_COOLDOWN",
+        0,
+    ):
+        yield
+
+
+@pytest.fixture(autouse=True)
 def _use_threaded_resolver():
     """Replace the c-ares AsyncResolver with the pure-Python ThreadedResolver.
 
