@@ -7,12 +7,11 @@ from homeassistant.components.image import ImageEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import dt as dt_util
 
 from .const import DOMAIN
 from .coordinator import XboxAuroraCoordinator
-from .entity import build_device_info
+from .entity import XboxAuroraEntity
 from xbox360_nova import NovaClient, NovaError  # noqa: F401  (NovaClient referenced for patching)
 
 
@@ -39,10 +38,9 @@ async def async_setup_entry(
     ])
 
 
-class XboxAuroraGamerpic(CoordinatorEntity[XboxAuroraCoordinator], ImageEntity):
+class XboxAuroraGamerpic(XboxAuroraEntity, ImageEntity):
     """The primary signed-in profile's gamerpic."""
 
-    _attr_has_entity_name = True
     _attr_translation_key = "gamerpic"
     _attr_content_type = "image/png"
 
@@ -52,11 +50,9 @@ class XboxAuroraGamerpic(CoordinatorEntity[XboxAuroraCoordinator], ImageEntity):
         coordinator: XboxAuroraCoordinator,
         entry: ConfigEntry,
     ) -> None:
-        CoordinatorEntity.__init__(self, coordinator)
+        XboxAuroraEntity.__init__(self, coordinator, entry)
         ImageEntity.__init__(self, hass, verify_ssl=False)
-        self._entry = entry
         self._attr_unique_id = f"{entry.entry_id}_gamerpic"
-        self._attr_device_info = build_device_info(coordinator, entry)
         self._cached_index: int | None = None
 
     def _primary_index(self) -> int | None:
@@ -87,10 +83,9 @@ class XboxAuroraGamerpic(CoordinatorEntity[XboxAuroraCoordinator], ImageEntity):
         return await self.hass.async_add_executor_job(_bmp_to_png, raw)
 
 
-class XboxAuroraScreenshot(CoordinatorEntity[XboxAuroraCoordinator], ImageEntity):
+class XboxAuroraScreenshot(XboxAuroraEntity, ImageEntity):
     """The most recent screen capture of the running title."""
 
-    _attr_has_entity_name = True
     _attr_translation_key = "screenshot"
     _attr_content_type = "image/png"
 
@@ -100,11 +95,9 @@ class XboxAuroraScreenshot(CoordinatorEntity[XboxAuroraCoordinator], ImageEntity
         coordinator: XboxAuroraCoordinator,
         entry: ConfigEntry,
     ) -> None:
-        CoordinatorEntity.__init__(self, coordinator)
+        XboxAuroraEntity.__init__(self, coordinator, entry)
         ImageEntity.__init__(self, hass, verify_ssl=False)
-        self._entry = entry
         self._attr_unique_id = f"{entry.entry_id}_screenshot"
-        self._attr_device_info = build_device_info(coordinator, entry)
         self._cached_filename: str | None = None
 
     def _newest(self):

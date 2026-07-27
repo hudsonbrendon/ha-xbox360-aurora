@@ -45,7 +45,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     coordinator = XboxAuroraCoordinator(hass, entry, client)
     await coordinator.async_load_static()
-    await coordinator.async_config_entry_first_refresh()
+    # Don't block setup when the console is off; refresh in the background.
+    entry.async_create_background_task(
+        hass, coordinator.async_request_refresh(), "xbox360_aurora_first_refresh"
+    )
 
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)

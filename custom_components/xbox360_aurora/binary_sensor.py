@@ -41,4 +41,4 @@ class XboxAuroraOnlineSensor(XboxAuroraEntity, BinarySensorEntity):
 
     @property
     def is_on(self) -> bool:
-        return self.coordinator.last_update_success
+        return self.coordinator.device_online
