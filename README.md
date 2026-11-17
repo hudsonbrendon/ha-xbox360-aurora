@@ -1,17 +1,17 @@
 <p align="center">
-  <img src="assets/xbox360-icon.png" alt="Xbox 360" height="120">
-</p>
-<p align="center">
-  <img src="assets/xbox360-logo.png" alt="Xbox 360" width="360">
+  <img src="custom_components/xbox360_aurora/brand/logo@2x.png" alt="Xbox 360 Aurora" height="128">
 </p>
 
 # Xbox 360 Aurora for Home Assistant
 
-[![Tests](https://github.com/hudsonbrendon/ha-xbox360-aurora/actions/workflows/test.yml/badge.svg)](https://github.com/hudsonbrendon/ha-xbox360-aurora/actions/workflows/test.yml)
-[![Validate](https://github.com/hudsonbrendon/ha-xbox360-aurora/actions/workflows/validate.yml/badge.svg)](https://github.com/hudsonbrendon/ha-xbox360-aurora/actions/workflows/validate.yml)
+[![Tests](https://github.com/hudsonbrendon/ha-xbox360-aurora/actions/workflows/tests.yml/badge.svg)](https://github.com/hudsonbrendon/ha-xbox360-aurora/actions/workflows/tests.yml)
+[![Hassfest](https://github.com/hudsonbrendon/ha-xbox360-aurora/actions/workflows/hassfest.yml/badge.svg)](https://github.com/hudsonbrendon/ha-xbox360-aurora/actions/workflows/hassfest.yml)
+[![HACS](https://github.com/hudsonbrendon/ha-xbox360-aurora/actions/workflows/validate.yml/badge.svg)](https://github.com/hudsonbrendon/ha-xbox360-aurora/actions/workflows/validate.yml)
+[![Release](https://img.shields.io/github/v/release/hudsonbrendon/ha-xbox360-aurora?sort=semver)](https://github.com/hudsonbrendon/ha-xbox360-aurora/releases)
+[![Downloads](https://img.shields.io/github/downloads/hudsonbrendon/ha-xbox360-aurora/total)](https://github.com/hudsonbrendon/ha-xbox360-aurora/releases)
 [![HACS Custom](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://hacs.xyz/)
-[![Release](https://img.shields.io/github/v/release/hudsonbrendon/ha-xbox360-aurora)](https://github.com/hudsonbrendon/ha-xbox360-aurora/releases)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2024.12.0%2B-18BCF2?logo=homeassistant&logoColor=white)](https://www.home-assistant.io/)
+[![License](https://img.shields.io/github/license/hudsonbrendon/ha-xbox360-aurora)](LICENSE)
 
 Built on the [`xbox360-nova`](https://pypi.org/project/xbox360-nova/) Python library.
 
@@ -87,6 +87,9 @@ launch-a-game, pause/resume, reboot, shutdown, and restart-Aurora.
   which serves custom-integration brand images from the bundled `brand/` folder.)
 
 ## Installation
+
+[![Open in HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=hudsonbrendon&repository=ha-xbox360-aurora&category=integration)
+[![Add integration](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=xbox360_aurora)
 
 ### HACS (recommended)
 

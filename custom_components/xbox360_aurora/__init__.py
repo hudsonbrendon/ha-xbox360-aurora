@@ -7,6 +7,7 @@ from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_PORT, CONF_USERNA
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from xbox360_nova import NovaClient, load_titles
 
 from .const import (
     ATTR_EXEC,
@@ -16,8 +17,6 @@ from .const import (
     PLATFORMS,
     SERVICE_LAUNCH_TITLE,
 )
-from xbox360_nova import NovaClient, load_titles
-
 from .coordinator import XboxAuroraCoordinator
 
 LAUNCH_TITLE_SCHEMA = vol.Schema(

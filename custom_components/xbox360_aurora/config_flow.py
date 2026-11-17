@@ -4,10 +4,17 @@ from __future__ import annotations
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.config_entries import ConfigEntry, OptionsFlow
-from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_PORT, CONF_SCAN_INTERVAL, CONF_USERNAME
+from homeassistant.const import (
+    CONF_HOST,
+    CONF_PASSWORD,
+    CONF_PORT,
+    CONF_SCAN_INTERVAL,
+    CONF_USERNAME,
+)
 from homeassistant.core import callback
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from xbox360_nova import NovaAuthError, NovaClient, NovaError
 
 from .const import (
     CONF_FTP_PASSWORD,
@@ -24,7 +31,6 @@ from .const import (
     MAX_SCAN_INTERVAL,
     MIN_SCAN_INTERVAL,
 )
-from xbox360_nova import NovaAuthError, NovaClient, NovaError
 
 STEP_REAUTH_SCHEMA = vol.Schema(
     {
@@ -53,7 +59,7 @@ class XboxAuroraConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     @staticmethod
     @callback
-    def async_get_options_flow(config_entry: ConfigEntry) -> "XboxAuroraOptionsFlow":
+    def async_get_options_flow(config_entry: ConfigEntry) -> XboxAuroraOptionsFlow:
         return XboxAuroraOptionsFlow()
 
     async def async_step_user(self, user_input: dict | None = None) -> FlowResult:

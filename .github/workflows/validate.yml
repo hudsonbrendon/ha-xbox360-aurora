@@ -1,28 +1,17 @@
-name: Validate
+name: HACS
 
 on:
   push:
-    branches: [main]
   pull_request:
   schedule:
-    - cron: "0 6 * * 1"
+    - cron: "0 0 * * *"
+  workflow_dispatch:
 
 jobs:
-  hassfest:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-      - name: Hassfest validation
-        uses: home-assistant/actions/hassfest@master
-
   hacs:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - name: HACS validation
-        uses: hacs/action@main
+      - uses: hacs/action@main
         with:
           category: integration
-          # No brand images are shipped to the HA brands CDN for this custom
-          # integration, so skip the brands check.
           ignore: brands

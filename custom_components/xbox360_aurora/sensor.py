@@ -21,11 +21,11 @@ from homeassistant.const import (
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import StateType
+from xbox360_nova import normalize_title_id, resolve_title_name
 
 from .const import DOMAIN
 from .coordinator import XboxAuroraCoordinator
 from .entity import XboxAuroraEntity
-from xbox360_nova import normalize_title_id, resolve_title_name
 
 _TRAY_STATES = {0: "idle", 1: "closing", 2: "open", 3: "opening", 4: "closed", 5: "error"}
 _AVPACK = {0: "unknown", 1: "hdmi", 2: "component", 3: "vga", 4: "composite"}

@@ -8,11 +8,11 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import dt as dt_util
+from xbox360_nova import NovaClient, NovaError  # noqa: F401  (NovaClient referenced for patching)
 
 from .const import DOMAIN
 from .coordinator import XboxAuroraCoordinator
 from .entity import XboxAuroraEntity
-from xbox360_nova import NovaClient, NovaError  # noqa: F401  (NovaClient referenced for patching)
 
 
 def _bmp_to_png(data: bytes) -> bytes:

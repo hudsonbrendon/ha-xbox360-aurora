@@ -7,7 +7,6 @@ from homeassistant.const import CONF_HOST
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-
 from xbox360_nova import FTP_CMD_REBOOT, FTP_CMD_RESTART, FTP_CMD_SHUTDOWN, site_command
 
 from .const import (
