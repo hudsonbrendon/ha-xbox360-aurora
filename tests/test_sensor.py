@@ -173,7 +173,7 @@ async def test_device_info_enriched_from_system(hass: HomeAssistant, mock_nova):
     await hass.async_block_till_done()
 
     registry = dr.async_get(hass)
-    device = registry.async_get_device(identifiers={(DOMAIN, entry.entry_id)})
+    (device,) = dr.async_entries_for_config_entry(registry, entry.entry_id)
     assert device is not None
     assert device.model == "Xbox 360 Jasper"
     assert device.serial_number == "123456789012"

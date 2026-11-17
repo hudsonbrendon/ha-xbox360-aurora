@@ -105,6 +105,9 @@ async def test_reauth_flow_updates_password(hass: HomeAssistant):
     with patch(
         "custom_components.xbox360_aurora.config_flow.NovaClient.authenticate",
         new=AsyncMock(return_value="tok"),
+    ), patch(
+        "custom_components.xbox360_aurora.async_setup_entry",
+        new=AsyncMock(return_value=True),
     ):
         result2 = await hass.config_entries.flow.async_configure(
             result["flow_id"],
